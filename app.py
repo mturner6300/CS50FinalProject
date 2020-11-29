@@ -31,5 +31,17 @@ def contactus():
     contactus = "currentpage"
     return render_template("contactus.html", contactus=contactus)
 
+@app.route("/search", methods=(["GET","POST"]))
+def search():
+    """ Get accesses the in-depth search page with GET"""
+    """ Search Courses with POST from any page """
+    if request.method == "GET":
+        return render_template("search.html")
+    else:
+        return render_template("results.html")
+
+    
+        
+        
 
     
