@@ -1,5 +1,7 @@
-/* Create database and start sql client */
-sqlite3 coursedatabase.db
+/* Create database and start sql client (was executed in ide) */
+/* sqlite3 coursedatabase.db */
+
+/* Rest of this code is executeable to reproduce our initial database from scratch in an empty .db file
 
 /* Create course table according to the architecture in our design */
 CREATE TABLE courses (
@@ -76,7 +78,7 @@ INSERT INTO prerequisites
 (course_id, prereq_id)
 VALUES ((SELECT id FROM courses WHERE code="SCRB 50"), (SELECT id FROM courses WHERE code="LIFESCI 1A"));
 
-/* Create and then populate days table accoriding to the architecture in our design */
+/* Create and then populate days table according to the architecture in our design */
 CREATE TABLE days (
 id INTEGER,
 day TEXT,
@@ -94,7 +96,7 @@ VALUES
 ("Friday"),
 ("Saturday");
 
-/* Create schedule table accoriding to the architecture in our design */
+/* Create schedule table according to the architecture in our design */
 CREATE TABLE schedule (
 offering_id INTEGER NOT NULL,
 day_id INTEGER NOT NULL,
@@ -102,4 +104,90 @@ start_time TIME[0] NOT NULL,
 end_time TIME[0] NOT NULL,
 FOREIGN KEY(offering_id) REFERENCES offered_couses(id),
 FOREIGN KEY(day_id) REFERENCES days(id)
+);
+
+/* Create security questions table according to the architecture in our design */
+CREATE TABLE security (
+id INTEGER,
+question TEXT NOT NULL UNIQUE,
+PRIMARY KEY(id)
+);
+
+/* Populate the security questions table */
+INSERT INTO security
+(question)
+VALUES
+("First pet's name"),
+("Town you grew up in"),
+("Childhood best friend"),
+("Father's middle name"),
+("Mother's maiden name"),
+("Name of your highschool"),
+("Favourite sports team"),
+("Surname of your favourite teacher");
+
+/* Create users table according to the architecture in our design */
+CREATE TABLE users (
+id INTEGER,
+username TEXT NOT NULL UNIQUE,
+email TEXT NOT NULL UNIQUE,
+hashedpass TEXT NOT NULL,
+security_id INTEGER NOT NULL,
+security_hash TEXT NOT NULL,
+PRIMARY KEY(id),
+FOREIGN KEY(security_id) REFERENCES security(id)
+);
+
+/* Create favourited courses table according to the architecture in our design */
+CREATE TABLE favourites (
+user_id INTEGER NOT NULL,
+course_id INTEGER NOT NULL,
+FOREIGN KEY(user_id) REFERENCES users(id),
+FOREIGN KEY(course_id) REFERENCES courses(id)
+);
+
+/* Create tracks type table according to the architecture in our design */
+CREATE TABLE track_types (
+id INTEGER,
+type TEXT,
+PRIMARY KEY(id)
+);
+
+/* Populate track types table */
+INSERT INTO track_types
+(type)
+VALUES
+("Citation"),
+("Secondary"),
+("Concentration")
+("General Ed");
+
+/* Create tracks table according to the architecture in our design */
+CREATE TABLE tracks (
+id INTEGER,
+name TEXT UNIQUE NOT NULL,
+description TEXT,
+length TEXT,
+type_id INTEGER,
+PRIMARY KEY(id),
+FOREIGN KEY(type_id) REFERENCES track_types(id)
+);
+
+/* Create requirements table according to the architecture in our design */
+CREATE TABLE requirements (
+id INTEGER,
+track_id INTEGER,
+name TEXT,
+description TEXT,
+length TEXT,
+PRIMARY KEY(id),
+FOREIGN KEY(track_id) REFERENCES tracks(id)
+);
+
+/* Create courses meeting requirments according to the architecture in our design */
+CREATE TABLE meets_requirements (
+requirement_id INTEGER,
+course_id INTEGER,
+FOREIGN KEY(requirement_id) REFERENCES requirements(id),
+FOREIGN KEY(course_id) REFERENCES courses(id)
 );
