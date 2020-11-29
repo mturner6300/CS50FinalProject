@@ -1,6 +1,10 @@
 from flask import Flask, flash, redirect, render_template, request, session
 app = Flask(__name__)
 
+import sqlite3
+connection = sqlite3.connect("coursedatabase.db")
+db = connection.cursor()
+
 @app.route('/')
 def index():
     home = "currentpage"
@@ -35,10 +39,20 @@ def contactus():
 def search():
     """ Get accesses the in-depth search page with GET"""
     """ Search Courses with POST from any page """
+    advancesearch = "currentpage"
     if request.method == "GET":
-        return render_template("search.html")
+        return render_template("search.html", advancesearch=advancesearch)
     else:
-        return render_template("results.html")
+        querystring = request.form.get("q")
+        if not querystring:
+            return render_template("search.html", querystring="nothing", advancesearch=advancesearch)
+        else:
+            results = db.execute("SELECT * FROM courses WHERE name CONTAINS ?", querystring)
+            if not results:
+                return render_template("search.html", querystring=querystring, advancesearch=advancesearch)
+            else:
+                return render_template("results.html", querystring=querystring, advancesearch=advancesearch, results=results)
+        
 
     
         
