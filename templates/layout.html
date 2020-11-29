@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="static/CS50project_style.css">
+        <link rel= "iconsheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div class="navbar">
+            <a class="currentpage"> Home </a>
+            <a> About </a>
+            <a> Explore </a>
+            <a> Tracks </a>
+            <a> My Account </a>
+            <a> Contact Us </a>
+            <div class="searchbar"> 
+                <form action="#"> 
+                    <input autocomplete="off" type="text"
+                        placeholder=" Search "
+                        name="search"> 
+                    <button>
+                        <img src="/static/magnify.png">
+                    </button>
+                </form> 
+            </div> 
+        </div>
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+    </body>
+</html>

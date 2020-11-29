@@ -1,27 +1,10 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <link rel="stylesheet" href="static/CS50project_style.css">
-        <link rel= "iconsheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    </head>
-    <body>
-        <div class="navbar">
-            <a class="currentpage" href="index.html"> Home </a>
-            <a href="index.html"> About </a>
-            <a href="index.html"> Explore </a>
-            <a href="index.html"> Tracks </a>
-            <a href="index.html"> My Account </a>
-            <a href="index.html"> Contact Us </a>
-            <div class="searchbar"> 
-                <form action="#"> 
-                    <input autocomplete="off" type="text"
-                        placeholder=" Search "
-                        name="search"> 
-                    <button>
-                        <img src="/static/magnify.png">
-                    </button>
-                </form> 
-            </div> 
-        </div>
-    </body>
-</html>
+{% extends "layout.html" %}
+{% block main %}
+
+<h1>This is the Home Page</h1>
+
+
+
+
+
+{% endblock %}
