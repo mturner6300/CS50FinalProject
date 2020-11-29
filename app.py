@@ -15,4 +15,21 @@ def about():
 def explore():
     explore = "currentpage"
     return render_template("explore.html", explore=explore)
+
+@app.route("/tracks", methods=(["GET","POST"]))
+def tracks():
+    tracks = "currentpage"
+    return render_template("tracks.html", tracks=tracks)
+
+@app.route("/myaccount", methods=(["GET","POST"]))
+def myaccount():
+    myaccount = "currentpage"
+    return render_template("myaccount.html", myaccount=myaccount)
+
+@app.route("/contactus", methods=(["GET","POST"]))
+def contactus():
+    contactus = "currentpage"
+    return render_template("contactus.html", contactus=contactus)
+
+
     
