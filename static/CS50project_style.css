@@ -2,11 +2,13 @@ body {
     background-color: #d5e6f7;
     color: #050831;
     font-size: 1.2rem;
-    margin: 0
+    margin: 0;
+    font-family: 'Merriweather';
 }
 h1 {
     border: none;
     margin: none;
+    font-family: 'Lato', sans-serif;
 }
 .navbar {
     position: sticky;
@@ -69,11 +71,3 @@ h1 {
     width: 34px;
     height: 30px;
 }
-
-
-h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 48px;
-}
-
-
