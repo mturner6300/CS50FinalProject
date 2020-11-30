@@ -7,11 +7,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
 import os
 
-
-connection = sqlite3.connect("coursedatabase.db")
-db = connection.cursor()
-
-
 app = Flask(__name__)
 
 # Ensure templates are auto-reloaded
@@ -58,6 +53,8 @@ def myaccount():
 """ Course Search """
 @app.route("/search", methods=(["GET","POST"]))
 def search():
+    connection = sqlite3.connect("coursedatabase.db")
+    db = connection.cursor()
     """ Get accesses the in-depth search page with GET"""
     """ Search Courses with POST from any page """
     search = "currentpage"
@@ -68,7 +65,8 @@ def search():
         if not querystring:
             return render_template("search.html", querystring="nothing", search=search)
         else:
-            results = db.execute("SELECT * FROM courses WHERE name CONTAINS ?", querystring)
+            results = db.execute("SELECT * FROM courses WHERE instr(name, ?)", [querystring])
+            results = db.fetchall()
             if not results:
                 return render_template("search.html", querystring=querystring, search=search)
             else:
