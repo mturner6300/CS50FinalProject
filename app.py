@@ -9,6 +9,11 @@ import os
 
 app = Flask(__name__)
 
+# Define function to intialise database
+def make_cursor(database):
+    connection = sqlite3.connect(database)
+    return connection.cursor()
+
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -53,8 +58,7 @@ def myaccount():
 """ Course Search """
 @app.route("/search", methods=(["GET","POST"]))
 def search():
-    connection = sqlite3.connect("coursedatabase.db")
-    db = connection.cursor()
+    db = make_cursor("coursedatabase.db")
     """ Get accesses the in-depth search page with GET"""
     """ Search Courses with POST from any page """
     search = "currentpage"
@@ -65,12 +69,21 @@ def search():
         if not querystring:
             return render_template("search.html", querystring="nothing", search=search)
         else:
-            results = db.execute("SELECT * FROM courses WHERE instr(name, ?)", [querystring])
+            db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
             results = db.fetchall()
+            names = []
+            descriptions = []
+            codes = []
+            for item in results:
+                i, name, desc, code = item
+                names.append(name)
+                descriptions.append(desc)
+                codes.append(code)
+            
             if not results:
                 return render_template("search.html", querystring=querystring, search=search)
             else:
-                return render_template("results.html", querystring=querystring, search=search, results=results)
+                return render_template("results.html", querystring=querystring, search=search, name=names[0], description=descriptions[0], code=codes[0])
         
 """ My Courses """
 
