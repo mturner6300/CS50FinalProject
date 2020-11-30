@@ -10,30 +10,53 @@ h1 {
     margin: none;
     font-family: 'Lato', sans-serif;
 }
-.navbar {
-    position: sticky;
-    top: 0;
-    margin: none;
-    background-color: #303030;
-    display: flex;
-    width: 100%;
-    height: 2rem;
+
+header {
+    background: #4f8b77;
 }
 
-.navbar a {
-    color: #408ec6;
-    padding-left: 1rem;
-    padding-right: 1rem;
+header::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.topbar {
+    width: 80%;
+    margin: 0 auto;
+}
+
+nav {
+    float: right;
+}
+
+nav ul {
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+}
+
+nav li{
+    display: inline-block;
+    margin-left: 70px;
+    padding-top: 25px;
+}
+
+nav a {
+    color: #324350;
     text-decoration: none;
-    vertical-align: middle;
-    text-align: center;
-    line-height: 1.4;
+    text-transform: uppercase;
+    font-size: 18px;
 }
 
-.navbar a.currentpage {
+nav a:hover {
+    color: #000;
+}
+
+nav a.currentpage {
     color:white;
-    background-color: #c02ec0;
-    border: .02rem solid transparent;
+    background-color: #307747;
+    border: .4rem solid transparent;
     border-radius: 1.3rem;
     line-height: 1.4;
     padding: none;

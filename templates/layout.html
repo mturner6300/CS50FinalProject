@@ -5,30 +5,39 @@
         <link rel= "iconsheet" href= "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
     <body>
-        <div class="navbar">
-            <a class=" {{ home }} " href="/"> Home </a>
-            <!--
-            <a class=" {{ myaccount }} " href="/myaccount"> My Account </a>
-            -->
-            <a class=" {{ search }} " href="/search"> Course Search </a>
-            <a class=" {{ mycourses }} " href="/mycourses"> My Courses </a>
-            <a class=" {{ tracks }} " href="/tracks"> Tracks </a>
-            <a class=" {{ schedule }} " href="/schedule"> Schedule </a>
-            <a class=" {{ about }} " href="/about"> About </a>
-            <a class=" {{ login }} " href="/login"> Log In </a> <!-- MAKE SO THAT AFTER LOGGED IN WILL SEE MY ACCOUNT -->
-            <!--
-            <div class="searchbar"> 
-                <form action="/search" method="post"> 
-                    <input autocomplete="off" type="text"
-                        placeholder=" Search "
-                        name="q"> 
-                    <button>
-                        <img src="/static/magnify.png">
-                    </button>
-                </form> 
-            </div> 
-            -->
-        </div>
+        <header>
+            <div class="topbar">
+                <nav>
+                    <ul>
+                        <li>
+                            <a class=" {{ home }} " href="/"> Home </a>
+                        </li>
+                        <li>
+                            <a class=" {{ search }} " href="/search"> Course Search </a>
+                        </li>
+                        <li>
+                            <a class=" {{ mycourses }} " href="/mycourses"> My Courses </a>
+                        </li>
+                        <li>
+                            <a class=" {{ tracks }} " href="/tracks"> Tracks </a>
+                        </li>
+                        <li>
+                            <a class=" {{ schedule }} " href="/schedule"> Schedule </a>
+                        </li>
+                        <li>
+                            <a class=" {{ about }} " href="/about"> About </a>
+                        </li>
+                        <li>
+                            <a class=" {{ login }} " href="/login"> Log In </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        
+        
+        
+        
     <main>
         {% block main %}{% endblock %}
     </main>
