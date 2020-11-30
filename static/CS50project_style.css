@@ -22,17 +22,17 @@ header::after {
 }
 
 .topbar {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
 }
 
 nav {
-    float: right;
+    float: left;
 }
 
 nav ul {
     margin: 0;
-    padding: 8px;
+    padding-bottom: 14px;
     list-style: none;
 }
 
