@@ -1,7 +1,19 @@
 {% extends "layout.html" %}
 {% block main %}
 
-<h1>This is the Advanced Search Page</h1>
+<h1>This is the Search Page</h1>
+
+<div class="searchbar"> 
+    <form action="/search" method="post"> 
+        <input autocomplete="off" type="text"
+            placeholder=" Search "
+            name="q"> 
+        <button>
+            <img src="/static/magnify.png">
+        </button>
+    </form> 
+</div>
+
 {% if querystring %}
 <h1> You searched for {{ querystring }} and we couldn't find it. Sorry!</h1>
 {% endif %}

@@ -4,6 +4,13 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
+import sqlite3
+import os
+
+
+connection = sqlite3.connect("coursedatabase.db")
+db = connection.cursor()
+
 
 app = Flask(__name__)
 
@@ -19,10 +26,6 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-import sqlite3
-connection = sqlite3.connect("coursedatabase.db")
-db = connection.cursor()
-
 @app.route('/')
 def index():
     home = "currentpage"
@@ -32,53 +35,50 @@ def index():
 def login():
     return render_template("login.html")
 
+""" Combine About and Contact Us?"""
 @app.route("/about", methods=(["GET","POST"]))
 def about():
     about = "currentpage"
     return render_template("about.html", about=about)
 
-@app.route("/explore", methods=(["GET","POST"]))
-@login_required
-def explore():
-    explore = "currentpage"
-    return render_template("explore.html", explore=explore)
-
+""" Track Search """
 @app.route("/tracks", methods=(["GET","POST"]))
 @login_required
 def tracks():
     tracks = "currentpage"
     return render_template("tracks.html", tracks=tracks)
 
+""" Replace Login with My Account when logged in?"""
 @app.route("/myaccount", methods=(["GET","POST"]))
 @login_required
 def myaccount():
     myaccount = "currentpage"
     return render_template("myaccount.html", myaccount=myaccount)
 
-@app.route("/contactus", methods=(["GET","POST"]))
-def contactus():
-    contactus = "currentpage"
-    return render_template("contactus.html", contactus=contactus)
-
+""" Course Search """
 @app.route("/search", methods=(["GET","POST"]))
 def search():
     """ Get accesses the in-depth search page with GET"""
     """ Search Courses with POST from any page """
-    advancesearch = "currentpage"
+    search = "currentpage"
     if request.method == "GET":
-        return render_template("search.html", advancesearch=advancesearch)
+        return render_template("search.html", search=search)
     else:
         querystring = request.form.get("q")
         if not querystring:
-            return render_template("search.html", querystring="nothing", advancesearch=advancesearch)
+            return render_template("search.html", querystring="nothing", search=search)
         else:
             results = db.execute("SELECT * FROM courses WHERE name CONTAINS ?", querystring)
             if not results:
-                return render_template("search.html", querystring=querystring, advancesearch=advancesearch)
+                return render_template("search.html", querystring=querystring, search=search)
             else:
-                return render_template("results.html", querystring=querystring, advancesearch=advancesearch, results=results)
+                return render_template("results.html", querystring=querystring, search=search, results=results)
         
+""" My Courses """
 
+""" Schedule """
+
+""" My Tracks """
     
         
         
