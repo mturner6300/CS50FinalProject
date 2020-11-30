@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block main %}
+
+<h1>This is the Advanced Search Page</h1>
+{% if querystring %}
+<h1> You searched for {{ querystring }} and we couldn't find it. Sorry!</h1>
+{% endif %}
+
+
+
+{% endblock %}

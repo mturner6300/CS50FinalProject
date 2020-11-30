@@ -12,11 +12,12 @@
             <a class=" {{ tracks }} " href="/tracks"> Tracks </a>
             <a class=" {{ myaccount }} " href="/myaccount"> My Account </a>
             <a class=" {{ contactus }} " href="/contactus"> Contact Us </a>
+            <a class=" {{ advancesearch }} " href="/search"> Advanced Search </a>
             <div class="searchbar"> 
-                <form action="#"> 
+                <form action="/search" method="post"> 
                     <input autocomplete="off" type="text"
                         placeholder=" Search "
-                        name="search"> 
+                        name="q"> 
                     <button>
                         <img src="/static/magnify.png">
                     </button>
