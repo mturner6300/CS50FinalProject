@@ -102,7 +102,7 @@ def register():
             
 
         else:
-            error = "Registration Successful"
+            error = "Registration Successful!"
             db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", (username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer)))
             conn.commit()
             return render_template("register.html", error=error, questions=questions)

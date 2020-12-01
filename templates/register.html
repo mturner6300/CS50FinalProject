@@ -17,8 +17,10 @@
     border-color: hsl(0, 76%, 50%);;
         }
 </style>
-
-<h1> It's a surprise tool that will help us later! </h1>
+<h1>Fill in the information below to register.</h1>
+{% if error %}
+    <h2> {{ error }} </h2>
+{% endif %}
 <form action="/register" method="post">
     <div class="form-group">
         <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
@@ -48,6 +50,5 @@
     </div>
     <button class="btn btn-primary" type="submit">Register</button>
 </form>
-<h2> {{ error }} </h2>
 
 {% endblock %}
