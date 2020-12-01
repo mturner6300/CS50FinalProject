@@ -45,30 +45,31 @@ def login():
     # Enter database
     conn, db = make_cursor("coursedatabase.db")
 
+    login = "currentpage"
     # Post is submission
     if request.method == "POST":
         # Ensure username and password were submitted
         if not request.form.get("username"):
-            return render_template("login.html", message="You must enter your username")
+            return render_template("login.html", message="You must enter your username", login=login)
         elif not request.form.get("password"):
-            return render_template("login.html", message="You must enter your password")
+            return render_template("login.html", message="You must enter your password", login=login)
         
         # Check for correct username and password
         db.execute("SELECT id, hashedpass FROM users WHERE username=?", [request.form.get("username")])
         rows = db.fetchall()
         if len(rows) != 1:
-            return render_template("login.html", message="Username does not exist")
+            return render_template("login.html", message="Username does not exist", login=login)
         
         user_id, hashed_pass = rows[0]
         if not check_password_hash(hashed_pass,request.form.get("password")):
-            return render_template("login.html", message="Wrong password")
+            return render_template("login.html", message="Wrong password", login=login)
         
 
         # Store username and return to home
         session["user_id"] = user_id
         return redirect("/")
     else:
-        return render_template("login.html")
+        return render_template("login.html", login=login)
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -154,6 +155,7 @@ def search():
             
             return render_template("results.html", querystring=querystring, search=search, results=results)
         else:
+            session["last_search"] = querystring
             db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
             results = db.fetchall()
             
@@ -169,22 +171,26 @@ def search():
 @app.route("/favourite", methods=(["GET","POST"]))
 @login_required
 def favourite():
+    mycourses = "currentpage"
     if request.method == "GET":
         conn, db = make_cursor("coursedatabase.db")
         user_id = session["user_id"]
-        db.execute("SELECT courses.name FROM favourites JOIN courses ON favourites.course_id = courses.id WHERE favourites.user_id = ?", user_id)
+        db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
         results = db.fetchall()
         if not results:
             return render_template("search.html", querystring="your favourites", search=search)
         else:
-            return render_template("results.html", search=search, results=results)
+            return render_template("results.html", mycourses=mycourses, results=results)
     else:
         conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("id")
         user_id = session["user_id"]
-        db.execute("INSERT INTO favourites VALUES(?,?)", user_id, course_id)
+        querystring = session["last_search"]
+        db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
         conn.commit()
-        return redirect(request.referrer)
+        db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
+        results = db.fetchall()
+        return render_template("results.html", querystring=querystring, search=search, results=results)
 
 """ Schedule """
 
