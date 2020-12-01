@@ -56,10 +56,13 @@ def login():
         # Check for correct username and password
         db.execute("SELECT id, hashedpass FROM users WHERE username=?", [request.form.get("username")])
         rows = db.fetchall()
-        print(rows)
+        if len(rows) != 1:
+            return render_template("login.html", message="Username does not exist")
+        
         user_id, hashed_pass = rows[0]
-        if len(rows) != 1 or not check_password_hash(hashed_pass,request.form.get("password")):
-            return render_template("login.html", message="Incorrect username and/or password")
+        if not check_password_hash(hashed_pass,request.form.get("password")):
+            return render_template("login.html", message="Wrong password")
+        
 
         # Store username and return to home
         session["user_id"] = user_id
