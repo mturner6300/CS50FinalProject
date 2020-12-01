@@ -94,7 +94,7 @@ def register():
             #return security answers don't match error
             error = "Security answers do not match!"
             return render_template("register.html", error=error,questions=questions)
-        elif len(db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username")).fetchall()) != 0:
+        elif len(db.execute("SELECT * FROM users WHERE username = ?", [request.form.get("username")]).fetchall()) != 0:
             #return username taken error
             error = "Username is taken!"
             return render_template("register.html", error=error, questions=questions)
