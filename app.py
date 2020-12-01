@@ -71,6 +71,10 @@ def login():
 def register():
     if request.method == "POST":
         # Collect info from form
+        db = make_cursor("coursedatabase.db")
+        db.execute("SELECT * FROM security")
+        questions = db.fetchall()
+
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_pass = request.form.get("confirm_password")
@@ -79,6 +83,26 @@ def register():
         security_answer = request.form.get("security_answer")
         confirm_answer = request.form.get("confirm_answer")
 
+        if not username or not password or not confirm_pass or not email or not security_id or not security_answer or not confirm_answer:
+            error = "Please fill in all fields!"
+            return render_template("register.html", error=error, questions=questions)
+        elif password != confirm_pass:
+            #return passwords don't match error
+            error = "Passwords do not match!"
+            return render_template("register.html", error=error,questions=questions)
+        elif security_answer != confirm_answer:
+            #return security answers don't match error
+            error = "Security answers do not match!"
+            return render_template("register.html", error=error,questions=questions)
+        elif len(db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username")).fetchall()) != 0:
+            #return username taken error
+            error = "Username is taken!"
+            return render_template("register.html", error=error, questions=questions)
+            
+
+        else:
+            error = "Registration Successful"
+            return render_template("register.html", error=error, questions=questions)
 
 
     else:
