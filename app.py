@@ -21,7 +21,7 @@ Session(app)
 # Define function to intialise database
 def make_cursor(database):
     connection = sqlite3.connect(database)
-    return connection.cursor()
+    return connection, connection.cursor()
 
 
 
@@ -43,7 +43,7 @@ def login():
     # Forget any user ids
     session.clear()
     # Enter database
-    db = make_cursor("coursedatabase.db")
+    conn, db = make_cursor("coursedatabase.db")
 
     # Post is submission
     if request.method == "POST":
@@ -54,8 +54,9 @@ def login():
             return render_template("login.html", message="You must enter your password")
         
         # Check for correct username and password
-        db.execute("SELECT id, hashedpass FROM users WHERE username=?", request.form.get("username"))
+        db.execute("SELECT id, hashedpass FROM users WHERE username=?", [request.form.get("username")])
         rows = db.fetchall()
+        print(rows)
         user_id, hashed_pass = rows[0]
         if len(rows) != 1 or not check_password_hash(hashed_pass,request.form.get("password")):
             return render_template("login.html", message="Incorrect username and/or password")
@@ -70,7 +71,7 @@ def login():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        db = make_cursor("coursedatabase.db")
+        conn, db = make_cursor("coursedatabase.db")
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
 
@@ -103,11 +104,12 @@ def register():
         else:
             error = "Registration Successful"
             db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", (username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer)))
+            conn.commit()
             return render_template("register.html", error=error, questions=questions)
 
 
     else:
-        db = make_cursor("coursedatabase.db")
+        conn, db = make_cursor("coursedatabase.db")
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
         return render_template("register.html", questions=questions)
@@ -135,7 +137,7 @@ def myaccount():
 """ Course Search """
 @app.route("/search", methods=(["GET","POST"]))
 def search():
-    db = make_cursor("coursedatabase.db")
+    conn, db = make_cursor("coursedatabase.db")
     """ Get accesses the in-depth search page with GET"""
     """ Search Courses with POST from any page """
     search = "currentpage"
@@ -165,7 +167,7 @@ def search():
 @login_required
 def favourite():
     if request.method == "GET":
-        db = make_cursor("coursedatabase.db")
+        conn, db = make_cursor("coursedatabase.db")
         user_id = session["user_id"]
         db.execute("SELECT course_id FROM favourites WHERE user_id = ?", id)
         results = db.fetchall()
@@ -174,10 +176,11 @@ def favourite():
         else:
             return render_template("results.html", search=search, results=results)
     else:
-        db = make_cursor("coursedatabase.db")
+        conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("id")
         user_id = session["user_id"]
         db.execute("INSERT INTO favourites VALUES(?,?)", user_id, course_id)
+        conn.commit()
         return redirect(request.referrer)
 
 """ Schedule """
