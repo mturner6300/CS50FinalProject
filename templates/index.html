@@ -1,12 +1,18 @@
 {% extends "layout.html" %}
 {% block main %}
+<style> h1 {color:#e3e4e9; text-shadow: 3px 3px 0 #000;} p {color:#e3e4e9;  text-shadow: 3px 3px 0 #000;}</style>
 
-<h1>This is the Home Page</h1>
+<img src="static/Welcomemountain.jpg" alt="Nature Photo" class="photocenter" height="1000px">
 
-<p>
-    Meghan, what is your favorite kind of sweet roll?
+<div style="margin-top:-650px" style="margin-bottom:500px">
+    <h1 style="text-align: center; font-size: 48px;">My.Harvard 2 Electric Boogaloo</h1>
+  </div>
+
+<p style="text-align: center; margin-top: 40px">
+    “Give me six hours to chop down a tree and I will spend the first four sharpening the axe.” 
+    <br>Abraham Lincoln
 </p>
-
-<a href="/register"> Register </a>
-
+<div class="Registerbuttondiv">
+    <a href="/register" class="Registerbuttona"> Register </a>
+</div>
 {% endblock %}

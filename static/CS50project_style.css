@@ -11,6 +11,8 @@ h1 {
     font-family: 'Lato', sans-serif;
 }
 
+/* This section is all materials for the nav bar at the top of the page*/
+
 header {
     background: #4f8b77;
 }
@@ -26,10 +28,6 @@ header::after {
     margin: 0 auto;
 }
 
-nav {
-    float: left;
-}
-
 nav ul {
     margin: 0;
     padding-bottom: 14px;
@@ -38,7 +36,7 @@ nav ul {
 
 nav li{
     display: inline-block;
-    margin-left: 70px;
+    margin-right: 35px;
     padding-top: 25px;
 }
 
@@ -64,6 +62,8 @@ nav a.currentpage {
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     vertical-align: middle;
 }
+
+/* This area is all materials for the searchbar*/
 
 .searchbar input[type=text]{ 
     width:300px; 
@@ -93,4 +93,29 @@ nav a.currentpage {
 .searchbar img{
     width: 34px;
     height: 30px;
+}
+
+/* Home Page Stuff*/
+
+.Registerbuttondiv{
+    text-align: center;
+    margin-top: 50px;
+}
+
+.Registerbuttona{
+    font-weight: 700;
+    font-size: 48px;
+    font-family: 'lato', sans-serif;
+    color: #bbc0ce;
+    border: solid 2px #bbc0ce;
+    border-radius: 50px;
+    padding: 10px 80px;
+    text-decoration: none;
+}
+
+.photocenter{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
 }
