@@ -56,7 +56,7 @@ def login():
         # Check for correct username and password
         db.execute("SELECT id, hashedpass FROM users WHERE username=?", request.form.get("username"))
         rows = db.fetchall()
-        user_id, hashedpass = rows[0]
+        user_id, hashed_pass = rows[0]
         if len(rows) != 1 or not check_password_hash(hashed_pass,request.form.get("password")):
             return render_template("login.html", message="Incorrect username and/or password")
 
@@ -70,11 +70,11 @@ def login():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        # Collect info from form
         db = make_cursor("coursedatabase.db")
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
 
+        # Collect info from form
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_pass = request.form.get("confirm_password")
@@ -102,6 +102,7 @@ def register():
 
         else:
             error = "Registration Successful"
+            db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer))
             return render_template("register.html", error=error, questions=questions)
 
 
