@@ -186,11 +186,18 @@ def favourite():
         course_id = request.form.get("id")
         user_id = session["user_id"]
         querystring = session["last_search"]
-        db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
-        conn.commit()
+        db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        rows = db.fetchall()
+        message = "Added to favourites!"
+        if len(rows) == 0:
+            db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+            conn.commit()
+        else:
+            message = "Already in favourites!"
+        
         db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
         results = db.fetchall()
-        return render_template("results.html", querystring=querystring, search=search, results=results)
+        return render_template("results.html", querystring=querystring, search=search, results=results, message=message)
 
 """ Schedule """
 
