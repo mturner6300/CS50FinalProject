@@ -169,7 +169,7 @@ def favourite():
     if request.method == "GET":
         conn, db = make_cursor("coursedatabase.db")
         user_id = session["user_id"]
-        db.execute("SELECT course_id FROM favourites WHERE user_id = ?", id)
+        db.execute("SELECT courses.name FROM favourites JOIN courses ON favourites.course_id = courses.id WHERE favourites.user_id = ?", user_id)
         results = db.fetchall()
         if not results:
             return render_template("search.html", querystring="your favourites", search=search)
