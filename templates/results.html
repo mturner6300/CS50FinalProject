@@ -4,6 +4,29 @@
 <h1>You searched for {{ querystring }} </h1>
 
 <h2> Results: </h2>
+<table>
+    <thead>
+        <tr>
+            <th> Code </th>
+            <th> Name </th>
+            <th> Description </th>
+            <th> Add favourite </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i, name, desc, code in results %}
+        <tr>
+            <td> {{ code }} </td>
+            <td> {{ name }} </td>
+            <td> {{ desc }} </td>
+            <td> <form method="post" action=/favourite> <button name="id" value="{{ i }}">
+                <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
+            </form> </button> </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 
 <h3> Name: {{ name }} </h3>
 <h3> Code: {{ code }} </h3>

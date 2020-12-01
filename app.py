@@ -9,13 +9,20 @@ import os
 
 app = Flask(__name__)
 
+# Ensure templates are auto-reloaded
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
 # Define function to intialise database
 def make_cursor(database):
     connection = sqlite3.connect(database)
     return connection.cursor()
 
-# Ensure templates are auto-reloaded
-app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 
 # Ensure responses aren't cached
@@ -33,11 +40,52 @@ def index():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    # Forget any user ids
+    session.clear()
+    # Enter database
+    db = make_cursor("coursedatabase.db")
+
+    # Post is submission
+    if request.method == "POST":
+        # Ensure username and password were submitted
+        if not request.form.get("username"):
+            return render_template("login.html", message="You must enter your username")
+        elif not request.form.get("password"):
+            return render_template("login.html", message="You must enter your password")
+        
+        # Check for correct username and password
+        db.execute("SELECT id, hashedpass FROM users WHERE username=?", request.form.get("username"))
+        rows = db.fetchall()
+        user_id, hashedpass = rows[0]
+        if len(rows) != 1 or not check_password_hash(hashed_pass,request.form.get("password")):
+            return render_template("login.html", message="Incorrect username and/or password")
+
+        # Store username and return to home
+        session["user_id"] = user_id
+        return redirect("/")
+    else:
+        return render_template("login.html")
+
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+    if request.method == "POST":
+        # Collect info from form
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirm_pass = request.form.get("confirm_password")
+        email = request.form.get("email")
+        security_id = request.form.get("security_question")
+        security_answer = request.form.get("security_answer")
+        confirm_answer = request.form.get("confirm_answer")
+
+
+
+    else:
+        db = make_cursor("coursedatabase.db")
+        db.execute("SELECT * FROM security")
+        questions = db.fetchall()
+        return render_template("register.html", questions=questions)
 
 """ Combine About and Contact Us?"""
 @app.route("/about", methods=(["GET","POST"]))
@@ -71,25 +119,41 @@ def search():
     else:
         querystring = request.form.get("q")
         if not querystring:
-            return render_template("search.html", querystring="nothing", search=search)
+            db.execute("SELECT * FROM courses")
+            results = db.fetchall()
+            
+            return render_template("results.html", querystring=querystring, search=search, results=results)
         else:
             db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
             results = db.fetchall()
-            names = []
-            descriptions = []
-            codes = []
-            for item in results:
-                i, name, desc, code = item
-                names.append(name)
-                descriptions.append(desc)
-                codes.append(code)
             
             if not results:
                 return render_template("search.html", querystring=querystring, search=search)
             else:
-                return render_template("results.html", querystring=querystring, search=search, name=names[0], description=descriptions[0], code=codes[0])
+                return render_template("results.html", querystring=querystring, search=search, results=results)
         
 """ My Courses """
+
+
+
+@app.route("/favourite", methods=(["GET","POST"]))
+@login_required
+def favourite():
+    if request.method == "GET":
+        db = make_cursor("coursedatabase.db")
+        user_id = session["user_id"]
+        db.execute("SELECT course_id FROM favourites WHERE user_id = ?", id)
+        results = db.fetchall()
+        if not results:
+            return render_template("search.html", querystring="your favourites", search=search)
+        else:
+            return render_template("results.html", search=search, results=results)
+    else:
+        db = make_cursor("coursedatabase.db")
+        course_id = request.form.get("id")
+        user_id = session["user_id"]
+        db.execute("INSERT INTO favourites VALUES(?,?)", user_id, course_id)
+        return redirect(request.referrer)
 
 """ Schedule """
 

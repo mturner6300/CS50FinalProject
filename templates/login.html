@@ -18,4 +18,8 @@
         <button class="btn btn-primary" type="submit">Log In</button>
     </form>
 
+{% if message %}
+<h1> {{ message }} </h1>
+{% endif %}
+
 {% endblock %}

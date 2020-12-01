@@ -9,5 +9,34 @@
 </style>
 
 <h1> It's a surprise tool that will help us later! </h1>
+<form action="/register" method="post">
+    <div class="form-group">
+        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="password" placeholder="Password" type="password">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="confirm_password" placeholder="Confirm password" type="password">
+    </div>
+    <div class="form-group">
+        <input autocomplete="off" autofocus class="form-control" name="email" placeholder="Email" type="text">
+    </div>
+    <div class="form-group">
+        <select name="security_question">
+            <option value="" disabled selected> Security Question </option>
+            {% for id, question in questions %}
+                <option value="{{ id }}"> {{ question }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="security_answer" placeholder="Security Answer" type="password">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="confirm_answer" placeholder="Confirm Answer" type="password">
+    </div>
+    <button class="btn btn-primary" type="submit">Register</button>
+</form>
 
 {% endblock %}
