@@ -1,6 +1,7 @@
 import os
 import requests
 import urllib.parse
+import sqlite3
 
 from flask import redirect, render_template, request, session
 from functools import wraps
@@ -17,3 +18,8 @@ def login_required(f):
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
+
+# Define function to intialise database
+def make_cursor(database):
+    connection = sqlite3.connect(database)
+    return connection, connection.cursor()

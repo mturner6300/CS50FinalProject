@@ -1,16 +1,19 @@
-/* Create database and start sql client (was executed in ide) */
+/* Create initial database and start sql client (was executed in ide) */
 /* sqlite3 coursedatabase.db */
 
 /* Rest of this code is executeable to reproduce our initial database from scratch in an empty .db file
+/* Comments started with ~ indicate notes on functionality */
+/* Updated version has been implemented in a python script */
 
 /* Create course table according to the architecture in our design */
 CREATE TABLE courses (
 id INTEGER,
-name TEXT NOT NULL UNIQUE,
+name TEXT NOT NULL UNIQUE, /* ~having looked at scraped data, probably need allow non-uniques at least for now */
 description TEXT NOT NULL,
-code TEXT UNIQUE NOT NULL,
+code TEXT UNIQUE NOT NULL, /* ~see comment on name */
 PRIMARY KEY(id)
 );
+/* ~consider adding School, Department and Subject columns */
 
 /* Create sessions table according to the architecture in our design */
 CREATE TABLE sessions (
@@ -67,16 +70,19 @@ FOREIGN KEY(antireq_id) REFERENCES courses(id)
 INSERT INTO courses
 (name, description, code) VALUES
 ("Building a Human Body: From Gene to Cell to Organism", "Through a series of lectures, application exercises and laboratory experiments, we will explore how the human body develops on a molecular level from gene to cell to organ. Ever wonder how you can make heart cells beat in a dish? Why can axolotls regenerate their limbs but humans cannot? How do neurites grow? Can we grow a brain in a cell culture dish? Come join us to discover the answers to these questions and more.","SCRB 50");
+/* ~obviously don't implement this in the python file */
 
 /* And its prereq */
 INSERT INTO courses
 (name, description, code) VALUES
 ("An Integrated Introduction to the Life Sciences: Chemistry, Molecular Biology, and Cell Biology", "What are the fundamental features of living systems? What are the molecules imparting them and how do their chemical properties explain their biological roles? The answers form a basis for understanding the molecules of life, the cell, diseases, and medicines. In contrast with traditional presentations of relevant scientific disciplines in separate courses, we take an integrated approach, presenting chemistry, molecular biology, biochemistry, and cell biology framed within central problems such as the biology of HIV and cancer.","LIFESCI 1A");
+/* ~obviously don't implement this in the python file */
 
 /* Now let's link them in the prereqs table */
 INSERT INTO prerequisites
 (course_id, prereq_id)
 VALUES ((SELECT id FROM courses WHERE code="SCRB 50"), (SELECT id FROM courses WHERE code="LIFESCI 1A"));
+/* ~obviously don't implement this in python */
 
 /* Create and then populate days table according to the architecture in our design */
 CREATE TABLE days (
@@ -159,7 +165,7 @@ INSERT INTO track_types
 VALUES
 ("Citation"),
 ("Secondary"),
-("Concentration")
+("Concentration"),
 ("General Ed");
 
 /* Create tracks table according to the architecture in our design */

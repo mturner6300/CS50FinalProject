@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, flash, redirect, render_template, request, session
-from helpers import login_required
+from helpers import login_required, make_cursor
 from flask_session import Session
 from flask_paginate import Pagination, get_page_parameter
 from tempfile import mkdtemp
@@ -104,7 +104,10 @@ def register():
             #return username taken error
             error = "Username is taken!"
             return render_template("register.html", error=error, questions=questions)
-            
+        elif len(db.execute("SELECT * FROM users WHERE email = ?", [request.form.get("email")]).fetchall()) != 0:
+            #return email error
+            error = "Email already has an account!"
+            return render_template("register.html", error=error, questions=questions)
 
         else:
             error = "Registration Successful!"
@@ -187,7 +190,7 @@ def favourite():
         else:
             page = request.args.get(get_page_parameter(), type=int, default=1) 
             pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
-            return render_template("results.html", querystring=querystring, mycourses=mycourses, results=results, pagination=pagination)
+            return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
     else:
         conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("id")
