@@ -8,32 +8,32 @@
 {% endif %}
 
 <h2> Results: </h2>
+{{ pagination.info }}
+{{ pagination.links }}
 <table>
-    <thead>
-        <tr>
-            <th> Code </th>
-            <th> Name </th>
-            <th> Description </th>
-            <th> Add favourite </th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for i, name, desc, code in results %}
-        <tr>
-            <td> {{ code }} </td>
-            <td> {{ name }} </td>
-            <td> {{ desc }} </td>
-            <td> <form method="post" action=/favourite> <button name="id" value="{{ i }}">
-                <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
-            </form> </button> </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th> # </th>
+      <th> Code </th>
+      <th> Name </th>
+      <th> Description </th>
+      <th> Add favourite </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i, name, desc, code in results %}
+      <tr>
+        <td>{{ loop.index + pagination.skip }}</td>
+        <td> {{ code }} </td>
+        <td> {{ name }} </td>
+        <td> {{ desc }} </td>
+        <td> <form method="post" action=/favourite> <button name="id" value="{{ i }}">
+        <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
+        </form> </button> </td>
+      </tr>
+    {% endfor %}
+  </tbody>
 </table>
-
-
-
-
-
+{{ pagination.links }}
 
 {% endblock %}

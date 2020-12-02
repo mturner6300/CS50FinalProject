@@ -1,6 +1,7 @@
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Blueprint, Flask, flash, redirect, render_template, request, session
 from helpers import login_required
 from flask_session import Session
+from flask_paginate import Pagination, get_page_parameter
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -149,20 +150,24 @@ def search():
         return render_template("search.html", search=search)
     else:
         querystring = request.form.get("q")
+        session["last_search"] = querystring
         if not querystring:
             db.execute("SELECT * FROM courses")
             results = db.fetchall()
+            page = request.args.get(get_page_parameter(), type=int, default=1) 
+            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+            return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
             
-            return render_template("results.html", querystring=querystring, search=search, results=results)
         else:
-            session["last_search"] = querystring
             db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
             results = db.fetchall()
-            
+
             if not results:
                 return render_template("search.html", querystring=querystring, search=search)
             else:
-                return render_template("results.html", querystring=querystring, search=search, results=results)
+                page = request.args.get(get_page_parameter(), type=int, default=1) 
+                pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+                return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
         
 """ My Courses """
 
@@ -180,7 +185,9 @@ def favourite():
         if not results:
             return render_template("search.html", querystring="your favourites", search=search)
         else:
-            return render_template("results.html", mycourses=mycourses, results=results)
+            page = request.args.get(get_page_parameter(), type=int, default=1) 
+            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+            return render_template("results.html", querystring=querystring, mycourses=mycourses, results=results, pagination=pagination)
     else:
         conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("id")
@@ -193,11 +200,13 @@ def favourite():
             db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
             conn.commit()
         else:
-            message = "Already in favourites!"
+            message = "Already in your favourites!"
         
         db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
         results = db.fetchall()
-        return render_template("results.html", querystring=querystring, search=search, results=results, message=message)
+        page = request.args.get(get_page_parameter(), type=int, default=1) 
+        pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+        return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination, message=message)
 
 """ Schedule """
 
