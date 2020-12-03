@@ -182,6 +182,7 @@ def search():
         
 """ My Courses """
 @app.route('/mycourses')
+@login_required
 def mycourses():
     mycourses = "currentpage"
     return render_template("mycourses.html", mycourses=mycourses)
