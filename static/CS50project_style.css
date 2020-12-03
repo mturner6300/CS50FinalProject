@@ -18,6 +18,11 @@ header {
     border-bottom: 5px solid #ffffff;
 }
 
+.header1 {
+    background: #39554c;
+}
+
+
 header::after {
     content: '';
     display: table;
@@ -65,6 +70,44 @@ nav a.currentpage {
     vertical-align: middle;
 }
 
+
+.nav1 ul {
+    margin: 0;
+    padding-bottom: 14px;
+    list-style: none;
+}
+
+.nav1 li{
+    display: inline-block;
+    margin-right: 35px;
+    padding-top: 25px;
+}
+
+.nav1 a {
+    color: #171e24;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 18px;
+    
+}
+
+.nav1 a:hover {
+    color: #000;
+}
+
+.nav1 a.currentpage {
+    color:white;
+    background-color: #307747;
+    border: .4rem solid transparent;
+    border-radius: 1.3rem;
+    line-height: 1.4;
+    padding: none;
+    text-align: center;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    vertical-align: middle;
+}
+
+
 /* This area is all materials for the searchbar*/
 
 .searchbar input[type=text]{ 
@@ -75,21 +118,21 @@ nav a.currentpage {
     padding-top: none;
 } 
 
+
 .searchbar{ 
-    float: right;
-    padding-left: 8rem;
+    float: center;
     line-height: 1.4;
+    padding-right: 10%;
 } 
 
 .searchbar button{ 
-    background-color: transparent; 
-    color:none; 
-    float: right; 
-    padding-left: .2rem;
-    margin-right: 16px; 
+    background-color:transparent; 
+    color: none; 
+    float: left; 
     font-size: 12px; 
     border: none; 
     cursor: pointer; 
+    position: relative;
 }
 
 .searchbar img{
