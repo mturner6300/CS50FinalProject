@@ -181,7 +181,10 @@ def search():
                 return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
         
 """ My Courses """
-
+@app.route('/')
+def index():
+    mycourses = "currentpage"
+    return render_template("mycourses.html", mycourses=mycourses)
 
 
 @app.route("/favourite", methods=(["GET","POST"]))
@@ -220,9 +223,20 @@ def favourite():
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination, message=message)
 
 """ Schedule """
+@app.route("/schedule", methods=(["GET","POST"]))
+@login_required
+def schedule():
+    schedule = "currentpage"
+    return render_template("schedule.html", schedule=schedule)
 
 """ My Tracks """
-    
+
+@app.route("/mytracks", methods=(["GET","POST"]))
+@login_required
+def schedule():
+    tracks = "currentpage"
+    return render_template("mytracks.html", tracks=tracks)
+
         
         
 
