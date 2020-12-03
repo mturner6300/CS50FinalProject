@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlite3
 from helpers import make_cursor
+import math
 
 # Import from a CSV file the data scraped from my.harvard 
 data = pd.read_csv(r'static/HarvardCourses-DataMinerMostCompleteSet.csv')
@@ -202,6 +203,46 @@ for row in frame.itertuples():
                 VALUES
                 (?, ?, ?)
                 """, (row.name, row.description, row.code))
+    # Full disclosure, this is going to delete professors with the same name and store them as single instructors,
+    # because we only have two surnames, giving us two options - make redundant rows with professor's names who teach 
+    # multiple classes (most professors), essentially making the point of this table to remove redundancies moot, or to do
+    # what we have done. As the professors tables do not link to anything prof-specific and only provides a name, saving
+    # makes the most sense to me
+    db.execute(""" SELECT * FROM instructors WHERE instructors.name = ?""", [row.professor])
+    checkrow = db.fetchall()
+    if len(checkrow) == 0:
+        db.execute("""INSERT INTO instructors
+                (name)
+                VALUES
+                (?);
+                """, [row.professor])
+
+    semester = row.semester.split(' ')
+    db.execute(""" SELECT * FROM sessions WHERE sessions.year = ? AND sessions.term = ?""", (semester[1],semester[0]))
+    checkrow = db.fetchall()
+    if len(checkrow) == 0:
+        db.execute("""INSERT INTO sessions
+                (term, year)
+                VALUES
+                (?, ?);
+                """, (semester[0],semester[1]))
+    
+    db.execute(""" SELECT id FROM courses WHERE courses.code = ?""", [row.code])
+    course_id = db.fetchone()
+    db.execute(""" SELECT id FROM instructors WHERE instructors.name = ?""", [row.professor])
+    instructor_id = db.fetchone()
+    db.execute(""" SELECT id FROM sessions WHERE sessions.year = ? AND sessions.term = ?""", (semester[1],semester[0]))
+    session_id = db.fetchone()
+
+    db.execute("""INSERT INTO offered_courses
+    (course_id, instructor_id, session_id)
+    VALUES
+    (?, ?, ?);
+    """, (course_id + instructor_id + session_id))
+
+    db.execute(""" SELECT offered_courses.id FROM offered_courses JOIN courses ON offered_courses.course_id = courses.id WHERE courses.code = ?""", [row.code])
+    offering_id = db.fetchone()
+    
+    
 
 conn.commit()
-    
