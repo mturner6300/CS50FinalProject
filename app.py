@@ -181,8 +181,8 @@ def search():
                 return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
         
 """ My Courses """
-@app.route('/')
-def index():
+@app.route('/mycourses')
+def mycourses():
     mycourses = "currentpage"
     return render_template("mycourses.html", mycourses=mycourses)
 
@@ -233,7 +233,7 @@ def schedule():
 
 @app.route("/mytracks", methods=(["GET","POST"]))
 @login_required
-def schedule():
+def mytracks():
     tracks = "currentpage"
     return render_template("mytracks.html", tracks=tracks)
 
