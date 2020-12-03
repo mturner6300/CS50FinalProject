@@ -26,9 +26,15 @@
                         <li>
                             <a class=" {{ schedule }} " href="/schedule"> Schedule </a>
                         </li>
+                        {% if session.user_id %}
+                        <li style = "float:right" style = "padding-right:1em">
+                            <a class=" {{ account }} " href="/account"> Account </a>
+                        </li>
+                        {% else %}
                         <li style = "float:right" style = "padding-right:1em">
                             <a class=" {{ login }} " href="/login"> Log In </a>
                         </li>
+                        {% endif %}
                         <li style = "float:right">
                             <a class=" {{ about }} " href="/about"> About </a>
                         </li>

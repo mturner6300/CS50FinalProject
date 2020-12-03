@@ -236,9 +236,21 @@ def schedule():
 @login_required
 def mytracks():
     tracks = "currentpage"
-    return render_template("mytracks.html", tracks=tracks)
+    mytracks = "currentpage1"
+    return render_template("mytracks.html", tracks=tracks, mytracks=mytracks)
 
         
-        
+""" Track Planner """
+@app.route("/trackplanner", methods=(["GET","POST"]))
+@login_required
+def trackplanner():
+    tracks = "currentpage"
+    trackplanner = "currentpage1"
+    return render_template("trackplanner.html", tracks=tracks, trackplanner=trackplanner)
 
-    
+""" Account """
+@app.route("/account", methods=(["GET","POST"]))
+@login_required
+def account():
+    account = "currentpage"
+    return render_template("account.html", account=account)

@@ -95,9 +95,9 @@ nav a.currentpage {
     color: #000;
 }
 
-.nav1 a.currentpage {
+.nav1 a.currentpage1 {
     color:white;
-    background-color: #307747;
+    background-color: #204d2e;
     border: .4rem solid transparent;
     border-radius: 1.3rem;
     line-height: 1.4;
