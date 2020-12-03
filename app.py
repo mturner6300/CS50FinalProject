@@ -157,11 +157,16 @@ def search():
         querystring = request.form.get("q")
         session["last_search"] = querystring
         if not querystring:
+            searcharg = False
+            q = request.args.get("q")
+            print(q)
+            if q:
+                searcharg = True
             page = request.args.get(get_page_parameter(), type=int, default=1) 
             offset = (page - 1) * perpage
-            db.execute("SELECT * FROM courses LIMIT ? OFFSET ?", (perpage, offset))
+            db.execute("SELECT * FROM courses")
             results = db.fetchall()
-            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=perpage)
+            pagination = Pagination(page=page, total=len(results), search=searcharg, record_name='courses', per_page=perpage)
             return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
             
         else:
