@@ -151,24 +151,27 @@ def search():
     """ Get accesses the in-depth search page with GET"""
     """ Search Courses with POST from any page """
     search = "currentpage"
-    if request.method == "GET":
-        return render_template("search.html", search=search)
+    querystring = request.form.get("q")
+    page = request.args.get("page")
+    if request.method == "GET" and not page:
+         return render_template("search.html", search=search)
+
     else:
-        querystring = request.form.get("q")
         session["last_search"] = querystring
         if not querystring:
             searcharg = False
             q = request.args.get("q")
-            print(q)
+
             if q:
                 searcharg = True
             page = request.args.get(get_page_parameter(), type=int, default=1) 
             offset = (page - 1) * perpage
-            db.execute("SELECT * FROM courses")
+            db.execute("SELECT * FROM courses LIMIT ? OFFSET ?", (perpage, offset))
             results = db.fetchall()
-            pagination = Pagination(page=page, total=len(results), search=searcharg, record_name='courses', per_page=perpage)
+            total = db.execute("SELECT * FROM courses").fetchall()
+            pagination = Pagination(page=page, total=len(total), search=searcharg, record_name='courses', per_page=perpage)
             return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
-            
+                
         else:
             db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
             results = db.fetchall()
