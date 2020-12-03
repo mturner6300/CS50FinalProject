@@ -24,6 +24,8 @@ def make_cursor(database):
     connection = sqlite3.connect(database)
     return connection, connection.cursor()
 
+# Global constant to limit search results to 25 per page
+perpage = 25
 
 
 # Ensure responses aren't cached
@@ -155,10 +157,11 @@ def search():
         querystring = request.form.get("q")
         session["last_search"] = querystring
         if not querystring:
-            db.execute("SELECT * FROM courses")
-            results = db.fetchall()
             page = request.args.get(get_page_parameter(), type=int, default=1) 
-            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+            offset = (page - 1) * perpage
+            db.execute("SELECT * FROM courses LIMIT ? OFFSET ?", (perpage, offset))
+            results = db.fetchall()
+            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=perpage)
             return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
             
         else:
@@ -169,7 +172,7 @@ def search():
                 return render_template("search.html", querystring=querystring, search=search)
             else:
                 page = request.args.get(get_page_parameter(), type=int, default=1) 
-                pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+                pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=25)
                 return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
         
 """ My Courses """
@@ -208,7 +211,7 @@ def favourite():
         db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
         results = db.fetchall()
         page = request.args.get(get_page_parameter(), type=int, default=1) 
-        pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+        pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=25)
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination, message=message)
 
 """ Schedule """

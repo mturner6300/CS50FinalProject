@@ -3,18 +3,18 @@ import sqlite3
 from helpers import make_cursor
 
 # Import from a CSV file the data scraped from my.harvard 
-#data = pd.read_csv(r'path')
+data = pd.read_csv(r'static/HarvardCourses-DataMinerMostCompleteSet.csv')
 
 # Reformat the data as a DataFrame object
-#frame = pd.DataFrame(data, columns=['column1name',...])
+frame = pd.DataFrame(data, columns=['name','code','professor','school','description','semester','day','time','term'])
 
 # Check dataframe construction
-#print(frame)
+# print(frame)
 
 # Connect to database
 conn, db = make_cursor("coursedatabase.db")
 
-# Clear database
+# Clear database implemented so that we could move on from our initial population and architecture a little more cleanly
 db.execute("DROP TABLE IF EXISTS antirequisites;")
 db.execute("DROP TABLE IF EXISTS corequisites;")
 db.execute("DROP TABLE IF EXISTS courses;")
@@ -37,7 +37,7 @@ conn.commit()
 db.execute("""CREATE TABLE courses (
             id INTEGER,
             name TEXT NOT NULL,
-            description TEXT NOT NULL,
+            description TEXT,
             code TEXT UNIQUE NOT NULL,
             PRIMARY KEY(id)
             );""")
@@ -191,3 +191,17 @@ db.execute("""CREATE TABLE meets_requirements (
             );""")
 
 conn.commit()
+
+# Insert data into the relevant tables
+for row in frame.itertuples():
+    db.execute(""" SELECT * FROM courses WHERE courses.code = ?""", [row.code])
+    checkrow = db.fetchall()
+    if len(checkrow) == 0:
+        db.execute("""INSERT INTO courses
+                (name, description, code)
+                VALUES
+                (?, ?, ?)
+                """, (row.name, row.description, row.code))
+
+conn.commit()
+    

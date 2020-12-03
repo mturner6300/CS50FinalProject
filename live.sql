@@ -1,1 +1,1 @@
-DROP TABLE antirequisites
+SELECT * FROM courses
