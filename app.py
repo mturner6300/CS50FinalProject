@@ -231,6 +231,11 @@ def favourite():
         page = request.args.get(get_page_parameter(), type=int, default=1) 
         pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=25)
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination, message=message)
+""" Remove Favourite"""
+@app.route("/removefavourite", methods=(["GET","POST"]))
+@login_required
+def removefavourite():
+    return render_template("myaccount.html")
 
 """ Schedule """
 @app.route("/schedule", methods=(["GET","POST"]))
@@ -263,3 +268,4 @@ def trackplanner():
 def account():
     account = "currentpage"
     return render_template("account.html", account=account)
+
