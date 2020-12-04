@@ -3,6 +3,25 @@
 
 <h1 style="text-align: center;">This is the My Courses Page</h1>
 
-
+<table>
+    <thead>
+      <tr>
+        <th> # </th>
+        <th> Code </th>
+        <th> Name </th>
+        <th> Description </th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for i, name, desc, code in results %}
+        <tr>
+          <td>{{ loop.index}}</td>
+          <td> {{ code }} </td>
+          <td> {{ name }} </td>
+          <td> {{ desc }} </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
 
 {% endblock %}
