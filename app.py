@@ -231,11 +231,23 @@ def favourite():
         page = request.args.get(get_page_parameter(), type=int, default=1) 
         pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=25)
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination, message=message)
+
 """ Remove Favourite"""
 @app.route("/removefavourite", methods=(["GET","POST"]))
 @login_required
 def removefavourite():
-    return render_template("myaccount.html")
+    conn, db = make_cursor("coursedatabase.db")
+    course_id = request.form.get("id")
+    user_id = session["user_id"]
+    db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+    rows = db.fetchall()
+    if len(rows) != 0:
+            db.execute("DELETE FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+            conn.commit()
+            message = "Removed from favourites!"
+    
+    return render_template("mycourses.html",message=message)
+
 
 """ Schedule """
 @app.route("/schedule", methods=(["GET","POST"]))
