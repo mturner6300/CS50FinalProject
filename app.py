@@ -158,34 +158,31 @@ def searchresults():
     search = "currentpage"
     querystring = request.args.get("q")
     page = request.args.get("page")
-    if not page:
-        page = 1
+    # if not page:
+    #     page = 1
 
     session["last_search"] = querystring
     if not querystring:
-        searcharg = False
-        q = request.args.get("q")
-
-        if q:
-            searcharg = True
         page = request.args.get(get_page_parameter(), type=int, default=1) 
         offset = (page - 1) * perpage
         db.execute("SELECT * FROM courses LIMIT ? OFFSET ?", (perpage, offset))
         results = db.fetchall()
         total = db.execute("SELECT * FROM courses").fetchall()
-        pagination = Pagination(page=page, total=len(total), search=searcharg, record_name='courses', per_page=perpage, css_framework='bootstrap4')
+        pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
                 
     else:
-        offset = (page - 1) * perpage
-        db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?)) LIMIT ? OFFSET ?", (querystring, perpage, offset))
+        db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
         results = db.fetchall()
-        total = db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring]).fetchall()
+        total = results
         if not results:
             return render_template("search.html", querystring=querystring, search=search)
         else:
-            page = request.args.get(get_page_parameter(), type=int, default=1) 
-            pagination = Pagination(page=page, total=len(total), search=True, record_name='courses', per_page=perpage, css_framework='bootstrap4')
+            page = request.args.get(get_page_parameter(), type=int, default=1)
+            offset = (page - 1) * perpage
+            db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?)) LIMIT ? OFFSET ?", (querystring, perpage, offset))
+            results = db.fetchall()
+            pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
             return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
         
 """ My Courses """
