@@ -139,8 +139,12 @@ db.execute("""CREATE TABLE users (
             hashedpass TEXT NOT NULL,
             security_id INTEGER NOT NULL,
             security_hash TEXT NOT NULL,
+            exposplacement INTEGER,
+            mathsplacement INTEGER,
             PRIMARY KEY(id),
             FOREIGN KEY(security_id) REFERENCES security(id)
+            FOREIGN KEY(exposplacement) REFERENCES courses(id)
+            FOREIGN KEY(mathsplacement) REFERENCES courses(id)
             );""")
 
 db.execute("""CREATE TABLE favourites (
@@ -242,7 +246,5 @@ for row in frame.itertuples():
 
     db.execute(""" SELECT offered_courses.id FROM offered_courses JOIN courses ON offered_courses.course_id = courses.id WHERE courses.code = ?""", [row.code])
     offering_id = db.fetchone()
-    
-    
 
 conn.commit()
