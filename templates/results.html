@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block main %}
 
+<style> table, tr, td {border: 1px black solid; border-collapse: collapse;} table {width:90%; margin-left: auto; margin-right: auto;} button {margin-left: auto; margin-right: auto};</style>
+
 <h1>You searched for {{ querystring }} </h1>
 
 {% if message %}
@@ -27,7 +29,7 @@
         <td> {{ code }} </td>
         <td> {{ name }} </td>
         <td> {{ desc }} </td>
-        <td> <form method="post" action=/favourite> <button name="id" value="{{ i }}">
+        <td> <form method="post" action=/favourite style="text-align: center;"> <button name="id" value="{{ i }}">
         <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
         </form> </button> </td>
       </tr>
