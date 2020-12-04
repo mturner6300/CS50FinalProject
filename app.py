@@ -193,7 +193,11 @@ def searchresults():
 @login_required
 def mycourses():
     mycourses = "currentpage"
-    return render_template("mycourses.html", mycourses=mycourses)
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
+    db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
+    favourites = db.fetchall()
+    return render_template("mycourses.html", mycourses=mycourses, favourites=favourites)
 
 
 @app.route("/favourite", methods=(["GET","POST"]))
