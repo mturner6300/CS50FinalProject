@@ -3,6 +3,7 @@
 
 <h1 style="text-align: center;">This is the My Courses Page</h1>
 
+<h2> My Favorite Courses</h2>
 <table>
     <thead>
       <tr>
@@ -13,7 +14,7 @@
       </tr>
     </thead>
     <tbody>
-        {% for i, name, desc, code in results %}
+        {% for i, name, desc, code in favourites %}
         <tr>
           <td>{{ loop.index}}</td>
           <td> {{ code }} </td>
