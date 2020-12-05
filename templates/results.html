@@ -5,9 +5,19 @@
 
 <h1>You searched for {{ querystring }} </h1>
 
-{% if message %}
+<!-- {% if message %}
 <h1> {{ message }} </h1>
-{% endif %}
+{% endif %} -->
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <h1>{{ message }}</h1>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 <h2> Results: </h2>
 {{ pagination.info }}
@@ -20,6 +30,7 @@
       <th> Name </th>
       <th> Description </th>
       <th> Add favourite </th>
+      <th> Completed </th>
     </tr>
   </thead>
   <tbody>
@@ -30,7 +41,9 @@
         <td> {{ name }} </td>
         <td> {{ desc }} </td>
         <td> <form method="post" action=/favourite style="text-align: center;"> <button name="id" value="{{ i }}">
-        <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
+        <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;"></form>
+        <td> <form method="get" action=/completed style="text-align: center;"> <button name="check" value="{{ i }}">
+          <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
         </form> </button> </td>
       </tr>
     {% endfor %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, flash, redirect, render_template, request, session
+from flask import Blueprint, Flask, flash, redirect, render_template, request, session, url_for
 from helpers import login_required, make_cursor
 from flask_session import Session
 from flask_paginate import Pagination, get_page_parameter
@@ -157,14 +157,12 @@ def searchresults():
     conn, db = make_cursor("coursedatabase.db")
     search = "currentpage"
     querystring = request.args.get("q")
-    page = request.args.get("page")
-    # if not page:
-    #     page = 1
+    page = request.args.get(get_page_parameter(), type=int, default=1) 
+    session["page"] = page
+    offset = (page - 1) * perpage
 
     session["last_search"] = querystring
     if not querystring:
-        page = request.args.get(get_page_parameter(), type=int, default=1) 
-        offset = (page - 1) * perpage
         db.execute("SELECT * FROM courses LIMIT ? OFFSET ?", (perpage, offset))
         results = db.fetchall()
         total = db.execute("SELECT * FROM courses").fetchall()
@@ -178,8 +176,6 @@ def searchresults():
         if not results:
             return render_template("search.html", querystring=querystring, search=search)
         else:
-            page = request.args.get(get_page_parameter(), type=int, default=1)
-            offset = (page - 1) * perpage
             db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?)) LIMIT ? OFFSET ?", (querystring, perpage, offset))
             results = db.fetchall()
             pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
@@ -200,6 +196,7 @@ def mycourses():
 @app.route("/favourite", methods=(["GET","POST"]))
 @login_required
 def favourite():
+    pagenum = session["page"]
     mycourses = "currentpage"
     if request.method == "GET":
         conn, db = make_cursor("coursedatabase.db")
@@ -219,18 +216,15 @@ def favourite():
         querystring = session["last_search"]
         db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
         rows = db.fetchall()
-        message = "Added to favourites!"
+        flash('Added to favourites!')
         if len(rows) == 0:
             db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
             conn.commit()
         else:
-            message = "Already in your favourites!"
+            session.pop('_flashes', None)
+            flash('Already in your favourites!')
         
-        db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
-        results = db.fetchall()
-        page = request.args.get(get_page_parameter(), type=int, default=1) 
-        pagination = Pagination(page=page, total=len(results), search=False, record_name='courses', per_page=25)
-        return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination, message=message)
+        return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
 """ Remove Favourite"""
 @app.route("/removefavourite", methods=(["GET","POST"]))
@@ -242,11 +236,50 @@ def removefavourite():
     db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
     rows = db.fetchall()
     if len(rows) != 0:
-            db.execute("DELETE FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
-            conn.commit()
-            message = "Removed from favourites!"
+        coursecode =  db.execute("SELECT courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ? AND favourites.course_id = ?", (user_id, course_id)).fetchall()
+        db.execute("DELETE FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        conn.commit()
+        message = str(coursecode[0][0]) + " removed from favourites!"
     
-    return render_template("mycourses.html",message=message)
+    db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
+    favourites = db.fetchall()
+    mycourses = "currentpage"
+    return render_template("mycourses.html",message=message, mycourses=mycourses, favourites=favourites)
+
+""" Completed Courses"""
+@app.route("/completed", methods=(["GET","POST"]))
+@login_required
+def completed():
+    pagenum = session["page"]
+    mycourses = "currentpage"
+    if request.method == "GET":
+        conn, db = make_cursor("coursedatabase.db")
+        user_id = session["user_id"]
+        #db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
+        #results = db.fetchall()
+        if not results:
+            return render_template("search.html", querystring="your favourites", search=search)
+        else:
+            page = request.args.get(get_page_parameter(), type=int, default=1) 
+            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+            return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
+    else:
+        conn, db = make_cursor("coursedatabase.db")
+        course_id = request.form.get("id")
+        user_id = session["user_id"]
+        querystring = session["last_search"]
+        #db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        #rows = db.fetchall()
+        flash('Added to completed courses!')
+        if len(rows) == 0:
+            #db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+            conn.commit()
+        else:
+            session.pop('_flashes', None)
+            flash('Already in your completed courses!')
+        
+        return redirect(url_for("searchresults",q=querystring, page=pagenum))
+
 
 
 """ Schedule """

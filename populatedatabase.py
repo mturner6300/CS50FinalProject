@@ -154,6 +154,13 @@ db.execute("""CREATE TABLE favourites (
             FOREIGN KEY(course_id) REFERENCES courses(id)
             );""")
 
+db.execute("""CREATE TABLE completed (
+            user_id INTEGER NOT NULL,
+            course_id INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(course_id) REFERENCES courses(id)
+            );""")
+
 db.execute("""CREATE TABLE track_types (
             id INTEGER,
             type TEXT,
