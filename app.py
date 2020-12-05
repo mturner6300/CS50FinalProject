@@ -244,8 +244,9 @@ def removefavourite():
     
     db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
     favourites = db.fetchall()
+    completed = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id]).fetchall()
     mycourses = "currentpage"
-    return render_template("mycourses.html",message=message, mycourses=mycourses, favourites=favourites)
+    return render_template("mycourses.html",message=message, mycourses=mycourses, favourites=favourites, completed=completed)
 
 """ Completed Courses"""
 @app.route("/completed", methods=(["GET","POST"]))
@@ -281,7 +282,25 @@ def completed():
         
         return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
-
+""" Remove Favourites """
+@app.route("/removecompleted", methods=(["GET","POST"]))
+@login_required
+def removecompleted():
+    conn, db = make_cursor("coursedatabase.db")
+    course_id = request.form.get("remcomplete")
+    user_id = session["user_id"]
+    db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+    rows = db.fetchall()
+    if len(rows) != 0:
+        coursecode =  db.execute("SELECT courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ? AND completed.course_id = ?", (user_id, course_id)).fetchall()
+        db.execute("DELETE FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        conn.commit()
+        complete = str(coursecode[0][0]) + " removed from completed courses!"
+    
+    favourites = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id]).fetchall()
+    completed = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id]).fetchall()
+    mycourses = "currentpage"
+    return render_template("mycourses.html", complete=complete, completed=completed, mycourses=mycourses, favourites=favourites)
 
 """ Schedule """
 @app.route("/schedule", methods=(["GET","POST"]))
