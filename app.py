@@ -190,7 +190,8 @@ def mycourses():
     user_id = session["user_id"]
     db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
     favourites = db.fetchall()
-    return render_template("mycourses.html", mycourses=mycourses, favourites=favourites)
+    completed = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id]).fetchall()
+    return render_template("mycourses.html", mycourses=mycourses, favourites=favourites, completed=completed)
 
 
 @app.route("/favourite", methods=(["GET","POST"]))
@@ -255,8 +256,8 @@ def completed():
     if request.method == "GET":
         conn, db = make_cursor("coursedatabase.db")
         user_id = session["user_id"]
-        #db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
-        #results = db.fetchall()
+        db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id])
+        results = db.fetchall()
         if not results:
             return render_template("search.html", querystring="your favourites", search=search)
         else:
@@ -265,14 +266,14 @@ def completed():
             return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
     else:
         conn, db = make_cursor("coursedatabase.db")
-        course_id = request.form.get("id")
+        course_id = request.form.get("check")
         user_id = session["user_id"]
         querystring = session["last_search"]
-        #db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
-        #rows = db.fetchall()
+        db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        rows = db.fetchall()
         flash('Added to completed courses!')
         if len(rows) == 0:
-            #db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+            db.execute("INSERT INTO completed VALUES(?,?)", (user_id, course_id))
             conn.commit()
         else:
             session.pop('_flashes', None)
