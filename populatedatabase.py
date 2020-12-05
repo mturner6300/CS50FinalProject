@@ -32,6 +32,7 @@ db.execute("DROP TABLE IF EXISTS sessions;")
 db.execute("DROP TABLE IF EXISTS track_types;")
 db.execute("DROP TABLE IF EXISTS tracks;")
 db.execute("DROP TABLE IF EXISTS users;")
+db.execute("DROP TABLE IF EXISTS completed;")
 conn.commit()
 
 # Create most updated database structure
