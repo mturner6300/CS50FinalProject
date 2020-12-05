@@ -137,13 +137,6 @@ def tracks():
     tracks = "currentpage"
     return render_template("tracks.html", tracks=tracks)
 
-""" Replace Login with My Account when logged in?"""
-@app.route("/myaccount", methods=(["GET","POST"]))
-@login_required
-def myaccount():
-    myaccount = "currentpage"
-    return render_template("myaccount.html", myaccount=myaccount)
-
 """ Course Search"""
 @app.route("/search")
 def search():
@@ -332,5 +325,8 @@ def trackplanner():
 @login_required
 def account():
     account = "currentpage"
-    return render_template("account.html", account=account)
+    if request.method == "GET":
+        return render_template("account.html", account=account)
+    else:
+        return render_template("account.html", account=account)
 
