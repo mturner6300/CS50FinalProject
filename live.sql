@@ -1,1 +1,1 @@
-SELECT * FROM users
+SELECT * FROM track_types

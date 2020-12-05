@@ -33,6 +33,8 @@ db.execute("DROP TABLE IF EXISTS track_types;")
 db.execute("DROP TABLE IF EXISTS tracks;")
 db.execute("DROP TABLE IF EXISTS users;")
 db.execute("DROP TABLE IF EXISTS completed;")
+db.execute("DROP TABLE IF EXISTS placements;")
+db.execute("DROP TABLE IF EXISTS expos;")
 conn.commit()
 
 # Create most updated database structure
@@ -162,6 +164,13 @@ db.execute("""CREATE TABLE completed (
             FOREIGN KEY(course_id) REFERENCES courses(id)
             );""")
 
+db.execute("""CREATE TABLE placements (
+            user_id INTEGER NOT NULL,
+            placement_id INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(course_id) REFERENCES courses(id)
+            );""")
+
 db.execute("""CREATE TABLE track_types (
             id INTEGER,
             type TEXT,
@@ -254,5 +263,6 @@ for row in frame.itertuples():
 
     db.execute(""" SELECT offered_courses.id FROM offered_courses JOIN courses ON offered_courses.course_id = courses.id WHERE courses.code = ?""", [row.code])
     offering_id = db.fetchone()
+
 
 conn.commit()
