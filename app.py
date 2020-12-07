@@ -210,13 +210,14 @@ def favourite():
         querystring = session["last_search"]
         db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
         rows = db.fetchall()
-        flash('Added to favourites!')
+        coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
         if len(rows) == 0:
             db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+            flash(str(coursecode[0][0]) + ' has been added to favourites!')
             conn.commit()
         else:
             session.pop('_flashes', None)
-            flash('Already in your favourites!')
+            flash( str(coursecode[0][0]) + ' is already in your favourites!')
         
         return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
@@ -261,17 +262,18 @@ def completed():
     else:
         conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("check")
+        coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
         user_id = session["user_id"]
         querystring = session["last_search"]
         db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
         rows = db.fetchall()
-        flash('Added to completed courses!')
+        flash(str(coursecode[0][0]) + ' has been added to your completed courses!')
         if len(rows) == 0:
             db.execute("INSERT INTO completed VALUES(?,?)", (user_id, course_id))
             conn.commit()
         else:
             session.pop('_flashes', None)
-            flash('Already in your completed courses!')
+            flash(str(coursecode[0][0]) + ' is already in your completed courses!')
         
         return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
