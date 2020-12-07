@@ -2,51 +2,61 @@
 {% block main %}
 
 <h1>This is the Account Page</h1>
+<h2> {{ my_maths_placement }} </h2>
+<h2> {{ maths_placements }}</h2>
 
 <form action="/account" method="post">
     <div class="form-group">
         <select name="maths_placement">
-            {% if (my in my_maths_placement)[0] %}
-                <option value="" disabled selected> Maths Placement/First Maths Class </option>
-            {% endif %}
-
-            {% for id, name in maths_placements %}
-                {% if not ((my in my_maths_placement)[0] == id) %}
-                    <option value="{{ id }}" selected> {{ name }} </option>
-                {% else %}
-                    <option value="{{ id }}"> {{ name }} </option>
+            {% for id, name in my_maths_placement %}
+                {% if id %}
+                    <option value="" disabled selected> Maths Placement/First Maths Class </option>
                 {% endif %}
+            {% endfor %}
+            {% for id, name in maths_placements %}
+                {% for myid, myname in my_maths_placement %}
+                    {% if myid == id %}
+                        <option value="{{ id }}" selected> {{ name }} </option>
+                    {% else %}
+                        <option value="{{ id }}"> {{ name }} </option>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
         </select>
     </div>
     <div class="form-group">
         <select name="expos_placement">
-            {% if (my in my_expos_placement)[0] %}
-                <option value="" disabled selected> Expos Placement </option>
-            {% endif %}
-
-            {% for id, name in expos_placements %}
-                {% if not ((my in my_expos_placement)[0] == id) %}
-                    <option value="{{ id }}" selected> {{ name }} </option>
-                {% else %}
-                    <option value="{{ id }}"> {{ name }} </option>
+            {% for id, name in my_expos_placement %}
+                {% if id %}
+                    <option value="" disabled selected> Expos Placement/First Expos Class </option>
                 {% endif %}
             {% endfor %}
-            
+            {% for id, name in expos_placements %}
+                {% for myid, myname in my_expos_placement %}
+                    {% if myid == id %}
+                        <option value="{{ id }}" selected> {{ name }} </option>
+                    {% else %}
+                        <option value="{{ id }}"> {{ name }} </option>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
         </select>
     </div>
     <div class="form-group">
         <select name="lifesci_placement">
-            {% if (my in my_lifesci_placement)[0] %}
-                <option value="" disabled selected> LifeSci Placement </option>
-            {% endif %}
-
-            {% for id, name in lifesci_placements %}
-                {% if not ((my in my_lifesci_placement)[0] == id) %}
-                    <option value="{{ id }}" selected> {{ name }} </option>
-                {% else %}
-                    <option value="{{ id }}"> {{ name }} </option>
+            {% for id, name in my_lifesci_placement %}
+                {% if id %}
+                    <option value="" disabled selected> LifeSci Placement/First LifeSci Class </option>
                 {% endif %}
+            {% endfor %}
+            {% for id, name in lifesci_placements %}
+                {% for myid, myname in my_lifesci_placement %}
+                    {% if myid == id %}
+                        <option value="{{ id }}" selected> {{ name }} </option>
+                    {% else %}
+                        <option value="{{ id }}"> {{ name }} </option>
+                    {% endif %}
+                {% endfor %}
             {% endfor %}
         </select>
     </div>

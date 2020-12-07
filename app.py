@@ -345,19 +345,19 @@ def account():
                                         WHERE placement_type = "Lifesci";
                                         """).fetchall()
 
-        my_maths_placement = db.execute(""" SELECT placement_id FROM placements
+        my_maths_placement = db.execute(""" SELECT placements.placement_id, placement_courses.name FROM placements
                                         JOIN placement_courses ON placement_courses.id = placement_id
                                         JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
                                         WHERE user_id = ? AND placement_type = "Math";
                                         """, [user_id]).fetchall()
 
-        my_expos_placement = db.execute(""" SELECT placement_id FROM placements
+        my_expos_placement = db.execute(""" SELECT placements.placement_id, placement_courses.name FROM placements
                                         JOIN placement_courses ON placement_courses.id = placement_id
                                         JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
                                         WHERE user_id = ? AND placement_type = "Expos";
                                         """, [user_id]).fetchall()
 
-        my_lifesci_placement = db.execute(""" SELECT placement_id FROM placements
+        my_lifesci_placement = db.execute(""" SELECT placements.placement_id, placement_courses.name FROM placements
                                         JOIN placement_courses ON placement_courses.id = placement_id
                                         JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
                                         WHERE user_id = ? AND placement_type = "Lifesci";
