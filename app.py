@@ -325,11 +325,98 @@ def trackplanner():
 @login_required
 def account():
     account = "currentpage"
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
     if request.method == "GET":
-        return render_template("account.html", account=account)
-    else:
-        return render_template("account.html", account=account)
+        expos_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE placement_type = "Expos";
+                                        """).fetchall()
 
+        maths_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE placement_type = "Math";
+                                        """).fetchall()
+
+        lifesci_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE placement_type = "Lifesci";
+                                        """).fetchall()
+
+        my_maths_placement = db.execute(""" SELECT placement_id FROM placements
+                                        JOIN placement_courses ON placement_courses.id = placement_id
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE user_id = ? AND placement_type = "Math";
+                                        """, [user_id]).fetchall()
+
+        my_expos_placement = db.execute(""" SELECT placement_id FROM placements
+                                        JOIN placement_courses ON placement_courses.id = placement_id
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE user_id = ? AND placement_type = "Expos";
+                                        """, [user_id]).fetchall()
+
+        my_lifesci_placement = db.execute(""" SELECT placement_id FROM placements
+                                        JOIN placement_courses ON placement_courses.id = placement_id
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE user_id = ? AND placement_type = "Lifesci";
+                                        """, [user_id]).fetchall()
+
+        print(my_expos_placement)
+        print(expos_placements)
+        return render_template("account.html", account=account, my_maths_placement=my_maths_placement, 
+        my_expos_placement=my_expos_placement, maths_placements=maths_placements, my_lifesci_placement=my_lifesci_placement,
+        expos_placements=expos_placements, lifesci_placements=lifesci_placements)
+    else:
+        mathsid = request.form.get("maths_placement")
+        exposid = request.form.get("expos_placement")
+        lsid = request.form.get("lifesci_placement")
+
+        if mathsid and exposid and lsid:
+            db.execute("""DELETE FROM placements WHERE user_id = ?""", [user_id])
+            db.execute("""INSERT INTO placements
+            VALUES
+            (?, ?),
+            (?, ?),
+            (?, ?);
+            """, (mathsid, user_id, exposid, user_id, lsid, user_id))
+            conn.commit()
+
+        expos_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE placement_type = "Expos";
+                                        """).fetchall()
+
+        maths_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE placement_type = "Math";
+                                        """).fetchall()
+
+        lifesci_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE placement_type = "Lifesci";
+                                        """).fetchall()
+
+        my_maths_placement = db.execute(""" SELECT placement_id FROM placements
+                                        JOIN placement_courses ON placement_courses.id = placement_id
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE user_id = ? AND placement_type = "Math";
+                                        """, [user_id]).fetchall()
+
+        my_expos_placement = db.execute(""" SELECT placement_id FROM placements
+                                        JOIN placement_courses ON placement_courses.id = placement_id
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE user_id = ? AND placement_type = "Expos";
+                                        """, [user_id]).fetchall()
+
+        my_lifesci_placement = db.execute(""" SELECT placement_id FROM placements
+                                        JOIN placement_courses ON placement_courses.id = placement_id
+                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
+                                        WHERE user_id = ? AND placement_type = "Lifesci";
+                                        """, [user_id]).fetchall()
+
+        return render_template("account.html", account=account, my_maths_placement=my_maths_placement, 
+        my_expos_placement=my_expos_placement, maths_placements=maths_placements, my_lifesci_placement=my_lifesci_placement,
+        expos_placements=expos_placements, lifesci_placements=lifesci_placements)
 
 """ Scheduler """
 

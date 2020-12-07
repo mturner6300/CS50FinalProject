@@ -34,6 +34,8 @@ db.execute("DROP TABLE IF EXISTS tracks;")
 db.execute("DROP TABLE IF EXISTS users;")
 db.execute("DROP TABLE IF EXISTS completed;")
 db.execute("DROP TABLE IF EXISTS placements;")
+db.execute("DROP TABLE IF EXISTS placement_types;")
+db.execute("DROP TABLE IF EXISTS placement_courses;")
 db.execute("DROP TABLE IF EXISTS expos;")
 conn.commit()
 
@@ -164,11 +166,52 @@ db.execute("""CREATE TABLE completed (
             FOREIGN KEY(course_id) REFERENCES courses(id)
             );""")
 
+db.execute("""CREATE TABLE placement_types (
+            id INTEGER,
+            placement_type TEXT NOT NULL,
+            PRIMARY KEY(id)
+            );""")
+
+db.execute("""INSERT INTO placement_types
+            (placement_type)
+            VALUES
+            ("Math"),
+            ("Expos"),
+            ("Lifesci");""")
+
+db.execute("""CREATE TABLE placement_courses (
+            id INTEGER,
+            name TEXT NOT NULL,
+            placement_type_id INTEGER NOT NULL,
+            PRIMARY KEY(id),
+            FOREIGN KEY(placement_type_id) REFERENCES placement_types(id)
+            );""")
+
+expos = db.execute("""SELECT id FROM placement_types WHERE placement_type = "Expos";""").fetchone()
+maths = db.execute("""SELECT id FROM placement_types WHERE placement_type = "Math";""").fetchone()
+ls =  db.execute("""SELECT id FROM placement_types WHERE placement_type = "Lifesci";""").fetchone()
+
+db.execute("""INSERT INTO placement_courses
+            (name, placement_type_id)
+            VALUES
+            ("EXPOS 10", ?), 
+            ("EXPOS 20", ?),
+            ("MATH MA", ?),
+            ("MATH MB", ?),
+            ("MATH 1a", ?),
+            ("MATH 1b", ?),
+            ("MATH 21a +", ?),
+            ("LPS A", ?),
+            ("LIFESCI 1a", ?),
+            ("LIFESCI 50a", ?)
+            ;""",
+            (expos + expos + maths + maths + maths + maths + maths + ls + ls + ls))
+
 db.execute("""CREATE TABLE placements (
-            user_id INTEGER NOT NULL,
             placement_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
             FOREIGN KEY(user_id) REFERENCES users(id),
-            FOREIGN KEY(course_id) REFERENCES courses(id)
+            FOREIGN KEY(placement_id) REFERENCES placement_(id)
             );""")
 
 db.execute("""CREATE TABLE track_types (
