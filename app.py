@@ -120,10 +120,12 @@ def register():
 
         # If all conditions are met, let user know registration is complete and store their data
         else:
-            error = "Registration Successful!"
             db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", (username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer)))
             conn.commit()
-            return render_template("register.html", error=error, questions=questions)
+            session["user_id"] = db.execute("SELECT id FROM users WHERE username=?", [request.form.get("username")]).fetchall()[0][0]
+            session.pop('_flashes', None)
+            flash('Account Made')
+            return redirect("/")
 
     # If method is GET, connect to database and load form with security questions
     else:
