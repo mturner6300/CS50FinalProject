@@ -1,6 +1,17 @@
 {% extends "layout.html" %}
 {% block main %}
-<style> h1 {color:#e3e4e9; text-shadow: 3px 3px 0 #000;} p {color:#e3e4e9;  text-shadow: 3px 3px 0 #000;}</style>
+
+<style> h1 {color:#e3e4e9; text-shadow: 3px 3px 0 #000;} p {color:#e3e4e9;  text-shadow: 3px 3px 0 #000;} .flashes {text-align: center;} </style>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <h1 style="color: #000; text-shadow: none;">{{ message }}</h1>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 <img src="static/Welcomemountain.jpg" alt="Nature Photo" class="photocenter" height="1000px">
 

@@ -10,6 +10,7 @@ import random
 import string
 import smtplib, ssl
 import os
+import ctypes
 
 app = Flask(__name__)
 
@@ -132,10 +133,12 @@ def register():
 
         # If all conditions are met, let user know registration is complete and store their data
         else:
-            error = "Registration Successful!"
             db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", (username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer)))
             conn.commit()
-            return render_template("register.html", error=error, questions=questions)
+            session["user_id"] = db.execute("SELECT id FROM users WHERE username=?", [request.form.get("username")]).fetchall()[0][0]
+            session.pop('_flashes', None)
+            flash('Account Made')
+            return redirect("/")
 
     # If method is GET, connect to database and load form with security questions
     else:
@@ -313,7 +316,7 @@ def completed():
         
         return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
-""" Remove Favourites """
+""" Remove Completed """
 @app.route("/removecompleted", methods=(["GET","POST"]))
 @login_required
 def removecompleted():
@@ -401,6 +404,48 @@ def logout():
 
     # Redirect to home
     return redirect("/")
+
+""" Change Passcode """
+@app.route("/change_pass", methods=["GET", "POST"])
+@login_required
+def change_pass():
+    conn, db = make_cursor("coursedatabase.db") 
+    if request.method == "POST":
+
+        if not request.form.get("password"):
+            message = "Enter password"
+            return render_template ("change_pass.html", message = message) 
+
+        if not request.form.get("new_password"):
+            message = "Enter new password"
+            return render_template ("change_pass.html", message = message) 
+
+        if not request.form.get("confirmation"):
+            message = "Enter new password"
+            return render_template ("change_pass.html", message = message) 
+
+        if request.form.get("new_password") != request.form.get("confirmation"):
+            message = "New Passwords Must Match"
+            return render_template ("change_pass.html", message = message) 
+
+        hashpassnew = generate_password_hash(request.form.get("new_password"))
+
+        actual_pass = db.execute("SELECT hashedpass FROM users WHERE id = ?", [session["user_id"]]).fetchall()
+
+        if not check_password_hash(actual_pass[0][0], request.form.get("password")):
+            message = "Incorrect Password"
+            return render_template ("change_pass.html", message = message) 
+
+        db.execute("UPDATE users SET hashedpass = ? WHERE id = ?", (hashpassnew, session["user_id"]))
+        conn.commit()
+
+        session.pop('_flashes', None)
+        flash('Changed Password')
+
+        return redirect("/")
+
+    else:
+        return render_template("change_pass.html")
 
 
 """ Forgot Password """
