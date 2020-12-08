@@ -353,7 +353,76 @@ def mytracks():
     return render_template("mytracks.html", tracks=tracks, mytracks=mytracks)
 
 """ Track Search"""
+@app.route("/tracksearch", methods=(["GET","POST"]))
+@login_required
+def tracksearch():
+    conn, db = make_cursor("coursedatabase.db")
+    tracks = "currentpage"
+    querystring = request.form.get("q")
+    session["last_search"] = querystring
+    page = request.args.get(get_page_parameter(), type=int, default=1) 
+    session["page"] = page
+    offset = (page - 1) * perpage
+    
+    # If nothing was searched for, load all courses and paginate the results at 25 per page
+    if not querystring:
+        db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id LIMIT ? OFFSET ?", (perpage, offset))
+        results = db.fetchall()
+        total = db.execute("SELECT * FROM tracks").fetchall()
+        pagination = Pagination(page=page, total=len(total), search=False, record_name='tracks', per_page=perpage, css_framework='bootstrap4')
+        return render_template("tracksearch.html", querystring=querystring, tracks=tracks, results=results, pagination=pagination)
+
+    # Otherwise, query for courses where the user's search is in the course name or course code           
+    else:
+        db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?))", (querystring, querystring))
+        results = db.fetchall()
+        total = results
+
+        # If no results come back, redirect to search page which will display an error
+        if not results:
+            return render_template("tracksearch.html", querystring=querystring, tracks=tracks)
         
+        # If there are results for the search, paginate and display them
+        else:
+            db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?)) LIMIT ? OFFSET ?", (querystring, querystring, perpage, offset))
+            results = db.fetchall()
+            pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
+            return render_template("tracksearch.html", querystring=querystring, tracks=tracks, results=results, pagination=pagination)
+
+""" Add Concentration"""
+@app.route("/addconcentration", methods=(["GET","POST"]))
+@login_required
+def addconcentration():
+    pagenum = session["page"]
+    mycourses = "currentpage"
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
+    if request.method == "GET":
+        db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
+        results = db.fetchall()
+        if not results:
+            return render_template("search.html", querystring="your favourites", search=search)
+        else:
+            page = request.args.get(get_page_parameter(), type=int, default=1) 
+            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
+            return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
+    else:
+        course_id = request.form.get("id")
+        querystring = session["last_search"]
+        db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        rows = db.fetchall()
+        coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
+        if len(rows) == 0:
+            db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+            flash(str(coursecode[0][0]) + ' has been added to favourites!')
+            conn.commit()
+        else:
+            session.pop('_flashes', None)
+            flash( str(coursecode[0][0]) + ' is already in your favourites!')
+        
+        return redirect(url_for("searchresults",q=querystring, page=pagenum))
+
+
 """ Track Planner """
 @app.route("/trackplanner", methods=(["GET","POST"]))
 @login_required
