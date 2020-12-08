@@ -344,7 +344,6 @@ def schedule():
     return render_template("schedule.html", schedule=schedule)
 
 """ My Tracks """
-
 @app.route("/mytracks", methods=(["GET","POST"]))
 @login_required
 def mytracks():
