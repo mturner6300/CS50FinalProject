@@ -1,5 +1,5 @@
 from flask import Blueprint, Flask, flash, redirect, render_template, request, session, url_for
-from helpers import login_required, make_cursor
+from helpers import login_required, make_cursor, refresh_placements
 from flask_session import Session
 from flask_paginate import Pagination, get_page_parameter
 from tempfile import mkdtemp
@@ -78,10 +78,8 @@ def login():
 # Redirects to the registration page
 @app.route('/register', methods=["GET", "POST"])
 def register():
-
-    # If method is POST, connect to database and prepare security questions in case of redirection
+    conn, db = make_cursor("coursedatabase.db")
     if request.method == "POST":
-        conn, db = make_cursor("coursedatabase.db")
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
 
@@ -128,7 +126,6 @@ def register():
 
     # If method is GET, connect to database and load form with security questions
     else:
-        conn, db = make_cursor("coursedatabase.db")
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
         return render_template("register.html", questions=questions)
@@ -222,10 +219,9 @@ def favourite():
     # Stores page number from the cookie we created in searchresults
     pagenum = session["page"]
     mycourses = "currentpage"
-
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
     if request.method == "GET":
-        conn, db = make_cursor("coursedatabase.db")
-        user_id = session["user_id"]
         db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
         results = db.fetchall()
         if not results:
@@ -235,9 +231,7 @@ def favourite():
             pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
             return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
     else:
-        conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("id")
-        user_id = session["user_id"]
         querystring = session["last_search"]
         db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
         rows = db.fetchall()
@@ -279,9 +273,9 @@ def removefavourite():
 def completed():
     pagenum = session["page"]
     mycourses = "currentpage"
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
     if request.method == "GET":
-        conn, db = make_cursor("coursedatabase.db")
-        user_id = session["user_id"]
         db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id])
         results = db.fetchall()
         if not results:
@@ -291,10 +285,8 @@ def completed():
             pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
             return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
     else:
-        conn, db = make_cursor("coursedatabase.db")
         course_id = request.form.get("check")
         coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
-        user_id = session["user_id"]
         querystring = session["last_search"]
         db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
         rows = db.fetchall()
@@ -361,41 +353,7 @@ def account():
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
     if request.method == "GET":
-        expos_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE placement_type = "Expos";
-                                        """).fetchall()
-
-        maths_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE placement_type = "Math";
-                                        """).fetchall()
-
-        lifesci_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE placement_type = "Lifesci";
-                                        """).fetchall()
-
-        my_maths_placement = db.execute(""" SELECT placements.placement_id, placement_courses.name FROM placements
-                                        JOIN placement_courses ON placement_courses.id = placement_id
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE user_id = ? AND placement_type = "Math";
-                                        """, [user_id]).fetchall()
-
-        my_expos_placement = db.execute(""" SELECT placements.placement_id, placement_courses.name FROM placements
-                                        JOIN placement_courses ON placement_courses.id = placement_id
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE user_id = ? AND placement_type = "Expos";
-                                        """, [user_id]).fetchall()
-
-        my_lifesci_placement = db.execute(""" SELECT placements.placement_id, placement_courses.name FROM placements
-                                        JOIN placement_courses ON placement_courses.id = placement_id
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE user_id = ? AND placement_type = "Lifesci";
-                                        """, [user_id]).fetchall()
-
-        print(my_expos_placement)
-        print(expos_placements)
+        expos_placements, maths_placements, lifesci_placements, my_expos_placement, my_maths_placement, my_lifesci_placement = refresh_placements(user_id, db)
         return render_template("account.html", account=account, my_maths_placement=my_maths_placement, 
         my_expos_placement=my_expos_placement, maths_placements=maths_placements, my_lifesci_placement=my_lifesci_placement,
         expos_placements=expos_placements, lifesci_placements=lifesci_placements)
@@ -414,42 +372,21 @@ def account():
             """, (mathsid, user_id, exposid, user_id, lsid, user_id))
             conn.commit()
 
-        expos_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE placement_type = "Expos";
-                                        """).fetchall()
-
-        maths_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE placement_type = "Math";
-                                        """).fetchall()
-
-        lifesci_placements = db.execute("""SELECT placement_courses.id, placement_courses.name FROM placement_courses
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE placement_type = "Lifesci";
-                                        """).fetchall()
-
-        my_maths_placement = db.execute(""" SELECT placement_id FROM placements
-                                        JOIN placement_courses ON placement_courses.id = placement_id
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE user_id = ? AND placement_type = "Math";
-                                        """, [user_id]).fetchall()
-
-        my_expos_placement = db.execute(""" SELECT placement_id FROM placements
-                                        JOIN placement_courses ON placement_courses.id = placement_id
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE user_id = ? AND placement_type = "Expos";
-                                        """, [user_id]).fetchall()
-
-        my_lifesci_placement = db.execute(""" SELECT placement_id FROM placements
-                                        JOIN placement_courses ON placement_courses.id = placement_id
-                                        JOIN placement_types ON placement_types.id = placement_courses.placement_type_id
-                                        WHERE user_id = ? AND placement_type = "Lifesci";
-                                        """, [user_id]).fetchall()
+        expos_placements, maths_placements, lifesci_placements, my_expos_placement, my_maths_placement, my_lifesci_placement = refresh_placements(user_id, db)
 
         return render_template("account.html", account=account, my_maths_placement=my_maths_placement, 
         my_expos_placement=my_expos_placement, maths_placements=maths_placements, my_lifesci_placement=my_lifesci_placement,
         expos_placements=expos_placements, lifesci_placements=lifesci_placements)
+
+""" Logout """
+@app.route("/logout", methods=(["GET","POST"]))
+@login_required
+def logout():
+    # Clear user, recent search, etc.
+    session.clear()
+
+    # Redirect to home
+    return redirect("/")
 
 """ Scheduler """
 
