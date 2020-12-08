@@ -1,1 +1,1 @@
-SELECT * FROM placements;
+SELECT * FROM tracks;

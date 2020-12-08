@@ -3,7 +3,7 @@ import sqlite3
 from helpers import make_cursor
 import math
 
-# Import from a CSV file the data scraped from my.harvard 
+# Import from CSV file the data scraped from my.harvard 
 data = pd.read_csv(r'static/HarvardCourses-DataMinerMostCompleteSet.csv')
 
 # Reformat the data as a DataFrame object
@@ -232,7 +232,7 @@ db.execute("""CREATE TABLE tracks (
             id INTEGER,
             name TEXT UNIQUE NOT NULL,
             description TEXT,
-            length TEXT,
+            link TEXT,
             type_id INTEGER,
             PRIMARY KEY(id),
             FOREIGN KEY(type_id) REFERENCES track_types(id)
@@ -304,8 +304,46 @@ for row in frame.itertuples():
     (?, ?, ?);
     """, (course_id + instructor_id + session_id))
 
-    db.execute(""" SELECT offered_courses.id FROM offered_courses JOIN courses ON offered_courses.course_id = courses.id WHERE courses.code = ?""", [row.code])
-    offering_id = db.fetchone()
+# Import from csv file the data scraped from harvard concentrations page
+data = pd.read_csv(r'static/HarvardTracks-Tracks.csv')
 
+# Reformat the data as a DataFrame object
+frame = pd.DataFrame(data, columns=['name','link','description'])
+
+# Check dataframe construction
+# print(frame)
+
+# Insert data into the relevant tables
+tid = db.execute("""SELECT id FROM track_types WHERE type=?""", ["Concentration"]).fetchall()[0][0]
+for row in frame.itertuples():
+    db.execute(""" SELECT * FROM tracks WHERE tracks.name = ?""", [row.name])
+    checkrow = db.fetchall()
+    if len(checkrow) == 0:
+        db.execute("""INSERT INTO tracks
+                    (name, description, link, type_id)
+                    VALUES
+                    (?, ?, ?, ?)
+                    """, (row.name, row.description, row.link, tid))
+
+# Import from csv file the data scraped from harvard concentrations page
+data = pd.read_csv(r'static/HarvardTracks-StandaloneSecondaries.csv')
+
+# Reformat the data as a DataFrame object
+frame = pd.DataFrame(data, columns=['name','link','description'])
+
+# Check dataframe construction
+# print(frame)
+
+# Insert data into the relevant tables
+id = db.execute("""SELECT id FROM track_types WHERE type=?""", ["Secondary"]).fetchall()[0][0]
+for row in frame.itertuples():
+    db.execute(""" SELECT * FROM tracks WHERE tracks.name = ?""", [row.name])
+    checkrow = db.fetchall()
+    if len(checkrow) == 0:
+        db.execute("""INSERT INTO tracks
+                    (name, description, link, type_id)
+                    VALUES
+                    (?, ?, ?, ?)
+                    """, (row.name, row.description, row.link, id))
 
 conn.commit()
