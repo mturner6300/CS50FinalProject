@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block main %}
+<style>
+    main {
+        text-align: center;
+        padding-top: 2rem;
+        font-family: sans-serif;
+    }
+    .form-group :focus {
+        border-color: #66afe9;
+        outline: 0;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    }  
+
+    input:placeholder-shown {
+    border-color: hsl(0, 76%, 50%);;
+        }
+</style>
+
+{% if security|length > 0 %}
+    <h1> Answer your security question! </h1>
+    <h2> {{ security }} </h2>
+    <form action="/forgot" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="answer" placeholder="Answer" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit"> Submit </button>
+    </form>
+{% elif sent %}
+    <h1> Sent new password to your email. Please change it when you log in! </h1>
+{% else %}
+    <h1> Forgot Password? </h1>
+    <form action="/forgot" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="email" placeholder="Email" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit"> Check username </button>
+    </form>
+{% endif %}
+
+{% if message %}
+    <h1> {{ message }}</h1>
+{% endif %}
+
+{% endblock %}

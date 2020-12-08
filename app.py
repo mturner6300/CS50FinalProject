@@ -6,6 +6,9 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 import sqlite3
+import random
+import string
+import smtplib, ssl
 import os
 
 app = Flask(__name__)
@@ -26,6 +29,16 @@ def make_cursor(database):
 
 # Global constant to limit search results to 25 per page
 perpage = 25
+
+# Global constant for SSL port
+port = 465
+
+# Global constant for SMTP server
+smtp_server = "smtp.gmail.com"
+
+# Globals for product email and password
+ouremail = "abcdbcde99@gmail.com"
+ourpassword = "MineDiamonds1"
 
 # Ensure responses aren't cached
 @app.after_request
@@ -389,4 +402,72 @@ def logout():
     # Redirect to home
     return redirect("/")
 
+
+""" Forgot Password """
+""" Sending emails using https://realpython.com/python-send-email/ """
+@app.route("/forgot", methods=(["GET","POST"]))
+def forgot():
+    conn, db = make_cursor("coursedatabase.db")
+    
+    if request.method == "GET":
+        return render_template("forgot.html")
+    else:
+        email = request.form.get("email")
+        answer = request.form.get("answer")
+    
+        if email:
+            security = db.execute("""SELECT security.question FROM security 
+                                    JOIN users ON users.security_id=security.id 
+                                    WHERE users.email = ?""", [email]).fetchall()[0][0]
+            session["emailforgot"] = email
+            return render_template("forgot.html", security=security)
+
+        
+        email = session["emailforgot"]
+        
+        if email:
+            security = db.execute("""SELECT security.question FROM security 
+                                    JOIN users ON users.security_id=security.id 
+                                    WHERE users.email = ?""", [email]).fetchall()[0][0]
+            if answer:
+                answerhash = db.execute("""SELECT security_hash FROM users
+                                            WHERE users.email = ?""", [email]).fetchall()[0][0]
+                if check_password_hash(answerhash, answer):
+                    letters = string.ascii_letters
+                    numbers = string.digits
+                    newpass = "".join(random.choice(letters) for i in range(int(random.choice(numbers)))).join(random.choice(numbers) for i in range(int(random.choice(numbers)))).join(random.choice(letters) for i in range(int(random.choice(numbers)))).join(random.choice(numbers) for i in range(int(random.choice(numbers))))
+                    newhash = generate_password_hash(newpass)
+                    db.execute("""UPDATE users 
+                                SET hashedpass = ?
+                                WHERE email = ?;""", (newhash, email))
+                    conn.commit()
+                    username = db.execute("""SELECT username FROM users WHERE email = ?""", [email]).fetchall()[0][0]
+
+                    context = ssl.create_default_context()
+
+                    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+                        server.login(ouremail, ourpassword)
+                        message = """\
+                            Subject: Changed Password
+
+                            Hi,
+
+                            You asked us to reset your password for myharvard2electricboogaloo!
+                            Your username: """
+                        
+                        addpass = """
+                        Your password: """
+
+                        message = message + username + addpass + newpass
+                        server.sendmail(our_email, email, message)
+
+                else:
+                    message = "Please check your security answer"
+                    return render_template("forgot.html", security=security, message=message)
+            else:
+                message = "Please enter a security answer"
+                return render_template("forgot.html", security=security, message=message)
+
+        message = "Please enter account email to reset password"
+        render_template(forgot.html, message=message)
 
