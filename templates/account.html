@@ -1,7 +1,26 @@
 {% extends "layout.html" %}
 {% block main %}
 
-<h1>This is the Account Page</h1>
+<style>
+    main {
+        text-align: center;
+        padding-top: 5rem;
+        font-family: sans-serif;
+    }
+    .form-group :focus {
+        border-color: #66afe9;
+        outline: 0;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    }
+    button {
+        margin-top: 1rem;
+
+    }
+
+</style>
+
+<h1>Your Account</h1>
 
 <form action="/account" method="post">
     <div class="form-group">
@@ -70,6 +89,10 @@
 <form action="/logout">
     <button class="submit"> Log Out </button>
 </form>
+
+<button>
+    <a href="/change_pass">Change Password</a>
+</button>
 
 
 {% endblock %}

@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block main %}
+<style>
+    main {
+        text-align: center;
+        padding-top: 2rem;
+        font-family: sans-serif;
+    }
+</style>
+<h2>Change Password</a></h2>
+<form action="/change_pass" method="post">
+    <div class="form-group">
+        <input autocomplete="off" autofocus class="form-control" name="password" placeholder="Old Password" type="text">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="new_password" placeholder="New Password" type="password">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="confirmation" placeholder="Confirmation" type="password">
+    </div>
+    <button class="btn btn-primary" type="submit">Change</button>
+</form>
+
+{% if message %}
+<h1> {{ message }} </h1>
+{% endif %}
+
+{% endblock %}
