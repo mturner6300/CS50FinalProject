@@ -336,6 +336,7 @@ def mytracks():
     mytracks = "currentpage1"
     return render_template("mytracks.html", tracks=tracks, mytracks=mytracks)
 
+""" Track Search"""
         
 """ Track Planner """
 @app.route("/trackplanner", methods=(["GET","POST"]))
@@ -388,5 +389,4 @@ def logout():
     # Redirect to home
     return redirect("/")
 
-""" Scheduler """
 
