@@ -36,7 +36,7 @@
         <td>{{ loop.index + pagination.skip }}</td>
         <td> {{ name }} </td>
         <td> {{ desc }} </td>
-        <td> <a href = " {{ link|e }}">{{ link }}</a> </td>
+        <td> <a href = " {{ link|e }}" target="_blank">{{ link }}</a> </td>
         <td>
             {% if type == "Concentration" %}
             <form method="post" action=/addconcentration style="text-align: center;"> <button name="id" value="{{ i }}">
