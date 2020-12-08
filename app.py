@@ -549,7 +549,7 @@ def forgot():
                 if check_password_hash(answerhash, answer):
                     letters = string.ascii_letters
                     numbers = string.digits
-                    newpass = "".join(random.choice(letters) for i in range(int(random.choice(numbers)))).join(random.choice(numbers) for i in range(int(random.choice(numbers)))).join(random.choice(letters) for i in range(int(random.choice(numbers)))).join(random.choice(numbers) for i in range(int(random.choice(numbers))))
+                    newpass = "".join(random.choice(letters) for i in range(int(random.choice(numbers)))).join(random.choice(numbers) for i in range(int(random.choice(numbers))))
                     newhash = generate_password_hash(newpass)
                     db.execute("""UPDATE users 
                                 SET hashedpass = ?
@@ -573,7 +573,10 @@ def forgot():
                         Your password: """
 
                         message = message + username + addpass + newpass
-                        server.sendmail(our_email, email, message)
+                        server.sendmail(ouremail, email, message)
+                        message = "Please check your email for your reset password"
+                        return render_template("forgot.html", message=message)
+
 
                 else:
                     message = "Please check your security answer"
@@ -583,5 +586,5 @@ def forgot():
                 return render_template("forgot.html", security=security, message=message)
 
         message = "Please enter account email to reset password"
-        render_template(forgot.html, message=message)
+        return render_template("forgot.html", message=message)
 
