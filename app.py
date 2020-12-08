@@ -163,13 +163,13 @@ def searchresults():
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
                 
     else:
-        db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?))", [querystring])
+        db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(code),LOWER(?))", (querystring, querystring))
         results = db.fetchall()
         total = results
         if not results:
             return render_template("search.html", querystring=querystring, search=search)
         else:
-            db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?)) LIMIT ? OFFSET ?", (querystring, perpage, offset))
+            db.execute("SELECT * FROM courses WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(code),LOWER(?)) LIMIT ? OFFSET ?", (querystring, querystring, perpage, offset))
             results = db.fetchall()
             pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
             return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
