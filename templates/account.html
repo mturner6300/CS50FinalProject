@@ -2,8 +2,6 @@
 {% block main %}
 
 <h1>This is the Account Page</h1>
-<h2> {{ my_maths_placement }} </h2>
-<h2> {{ maths_placements }}</h2>
 
 <form action="/account" method="post">
     <div class="form-group">
@@ -63,7 +61,7 @@
     <button class="submit"> Submit </button>
 </form>
 
-
+<button href="/logout"> Log Out </button>
 
 
 {% endblock %}
