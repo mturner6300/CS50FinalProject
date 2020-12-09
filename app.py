@@ -598,7 +598,7 @@ def forgot():
                 if check_password_hash(answerhash, answer):
                     letters = string.ascii_letters
                     numbers = string.digits
-                    newpass = "".join(random.choice(letters) for i in range(10)).join(random.choice(numbers) for i in range(10))
+                    newpass = "".join(random.choice(letters) for i in range(8)).join(random.choice(numbers) for i in range(8))
                     newhash = generate_password_hash(newpass)
                     db.execute("""UPDATE users 
                                 SET hashedpass = ?

@@ -49,15 +49,14 @@ pip install [replace with library]
 
 or 
 
-pip3 install [replace with library]
-for all of the following libraries
+pip3 install library
+for all of the following libraries (replace "library" with each of the library names below)
 (Anaconda users especially, you will notice that many of these are already installed! If they are, the command prompt should just tell you so!]):
 flask
 flask_session
 flask_paginate
 tempfile
 werkzeug.exceptions
-werkzeug.security
 werkzeug.security
 sqlite3
 random
@@ -80,4 +79,29 @@ if you are an anaconda user. This may or may not be necessary to run populatedat
 
 Our main project folder, titled "CS50FINALPROJECT" contains a python cache folder "_pycache_" of recent changes to/by python files (you will never need to open this), a folder "static" in which all our static files (i.e. images, backgrounds, csv files) have been placed, a folder "templates" which contains all our html files including "layout.html" which is the file that sets the base layout for all other htmls, a folder "venv" which supports setting up a virtual environment through which to host the website if you are running it through your native command prompt (more on this below), app.py which is the flask application that implements most of our functionality, coursedatabase.db which is the database for our site, DESIGN.md which contains details of our design process, helpers.py which contains a few functions we separated out from app.py for concision, myharvard2.sql which contains sql that designed and reset the original sql database, populatedatabase.py which designs and resets our final iteration of the sql database, and a recording of our video, which can also be found at https://youtu.be/wwsag9WcAMA
 
+If you are missing any of these files, then you may want to repeat whatever you did in order to collect them, view/clone our public github repo at(https://github.com/mturner6300/CS50FinalProject), or reach out to us to let us know that we are missing something (god-willing, we won't be).
 
+You should now be able to change directory in yor command prompt into the folder in which our programme is downloaded on your device with a line of code like:
+cd route\CS50FinalProject
+
+On my computer, this line is:
+cd OneDrive\Documents\GitHub\CS50FinalProject
+
+BE AWARE: If you, like us, have a computer that automatically connects to the cloud via a service such as OneDrive, then the files you downloaded may not be local to your disk, and might in fact be in a route such as OneDrive as above. 
+
+Now you should be able to run the command:
+run flask
+
+which should return to you:
+
+* Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on http://123.0.0.4:5678/ (Press CTRL+C to quit)
+
+from which you can copy the returned url e.g. http://123.0.0.4:5678/ into your web browser of choice, to access our web app. 
+
+You should be welcomed with the index page, which will allow you to register via a button in the center of the screen. This will redirect you to fill in your information, including a REAL EMAIL ADDRESS, which will enable our functionality for forgotten usernames/passwords. We implemented a cursory check for real email addresses (see design for more information) but we are aware that this is not 100% sufficient for somebody trying to fool the site. Be aware, if you fool the site and do not enter an email address that is a. real and b. accessible by you, you will not be able to retrieve your account. You don't need to register immediately, you can take a look at the about us page.
+
+Once you register (confirming your information correctly, unique username, an email address), the site will automatically log you in, giving you free reign to try out the site. For more information on the rest of the site, see DESIGN.md
