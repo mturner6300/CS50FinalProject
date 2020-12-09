@@ -8,6 +8,8 @@
 
 <h1 style="text-align: center;">My Tracks</h1>
 
+<h3> {{ message }} </h3>
+
 <h2 style="text-align: center;"> My Concentration Tracks </h2>
 <table>
     <thead>
@@ -34,8 +36,9 @@
     </tbody>
 </table>
 
+<h3> {{ message2 }} </h3>
+
 <h2 style="text-align: center;"> My Secondary Tracks </h2>
-<h3> {{ complete }} </h3>
 
 <table>
   <thead>
@@ -48,13 +51,13 @@
     </tr>
   </thead>
   <tbody>
-      {% for i, name, desc, code in completed %}
+      {% for i, name, desc, link in secondaries %}
       <tr>
         <td>{{ loop.index}}</td>
         <td> {{ name }} </td>
         <td> {{ desc }} </td>
         <td> <a href = " {{ link|e }}" target="_blank">{{ link }}</a>  </td>
-        <td> <form method="post" action="/removeconcentration" style="text-align: center;"> <button name="id" value="{{ i }}">
+        <td> <form method="post" action="/removesecondary" style="text-align: center;"> <button name="id" value="{{ i }}">
             <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
             </form> </button> </td>
       </tr>

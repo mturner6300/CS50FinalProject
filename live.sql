@@ -1,1 +1,1 @@
-SELECT * FROM tracks;
+SELECT * FROM my_tracks;

@@ -384,8 +384,8 @@ def tracksearch():
         
         # If there are results for the search, paginate and display them
         else:
-            # db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?)) LIMIT ? OFFSET ?", (querystring, querystring, perpage, offset))
-            # results = db.fetchall()
+            db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?)) LIMIT ? OFFSET ?", (querystring, querystring, perpage, offset))
+            results = db.fetchall()
             pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
             return render_template("tracksearch.html", querystring=querystring, tracks=tracks, results=results, pagination=pagination)
 
@@ -477,13 +477,13 @@ def removesecondary():
     if len(rows) != 0:
         db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
         conn.commit()
-        message = str(trackname[0][0]) + " removed from your concentrations!"
+        message2 = str(trackname[0][0]) + " removed from your secondaries!"
     
     concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     mycourses = "currentpage"
-    return render_template("mytracks.html",message=message, mycourses=mycourses, concentrations=concentrations, secondaries=secondaries)
+    return render_template("mytracks.html",message2=message2, mycourses=mycourses, concentrations=concentrations, secondaries=secondaries)
 
 """ Account """
 @app.route("/account", methods=(["GET","POST"]))
