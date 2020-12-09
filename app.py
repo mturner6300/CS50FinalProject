@@ -199,10 +199,14 @@ def searchresults():
     
     # If nothing was searched for, load all courses and paginate the results at 25 per page
     if not querystring:
+        # Limit and offset the query for ALL results with presets, then fetch query resulst
         db.execute("SELECT * FROM courses LIMIT ? OFFSET ?", (perpage, offset))
         results = db.fetchall()
+        # Retrieve total list of courses for paginate to count
         total = db.execute("SELECT * FROM courses").fetchall()
+        # Pagininate with bootstrap4 styling
         pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
+        # Render search results with paginiation
         return render_template("results.html", querystring=querystring, search=search, results=results, pagination=pagination)
 
     # Otherwise, query for courses where the user's search is in the course name or course code           
@@ -244,41 +248,57 @@ def mycourses():
 @app.route("/favourite", methods=(["GET","POST"]))
 @login_required
 def favourite():
-    # Stores page number from the cookie we created in searchresults
+    # Stores page number from the cookie we created in searchresults, connects to db, sets current page
     pagenum = session["page"]
     mycourses = "currentpage"
     conn, db = make_cursor("coursedatabase.db")
+    # Stores user id, last search, and the favourited course
     user_id = session["user_id"]
     course_id = request.form.get("id")
     querystring = session["last_search"]
+    # Query favourites to see if the user has already favourited this course
     db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
     rows = db.fetchall()
+    # Retrieve the course code for notification message
     coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
+    # Perform check for uniqueness f this favourite
     if len(rows) == 0:
+        # If unique, add to favourites for this user
         db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+        # Flash user success message
         flash(str(coursecode[0][0]) + ' has been added to favourites!')
+        # Commit changes
         conn.commit()
     else:
+        # If already in favourites, notify user
         session.pop('_flashes', None)
         flash( str(coursecode[0][0]) + ' is already in your favourites!')
         
+    # Redirect to the SAME PAGE OF THE SAME SEARCH QUERY
     return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
 """ Remove Favourite"""
 @app.route("/removefavourite", methods=(["GET","POST"]))
 @login_required
 def removefavourite():
+    # Connect to database
     conn, db = make_cursor("coursedatabase.db")
+    # Retrieve user and the unfavourited courses id
     course_id = request.form.get("id")
     user_id = session["user_id"]
+    # Query to check that unfavourited course is in favourites
     db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
     rows = db.fetchall()
     if len(rows) != 0:
+        # If it's in favourites, retrieve course code, delete, and prepare success message
         coursecode =  db.execute("SELECT courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ? AND favourites.course_id = ?", (user_id, course_id)).fetchall()
         db.execute("DELETE FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+        # 
         conn.commit()
         message = str(coursecode[0][0]) + " removed from favourites!"
     
+    # If not, just reload the mycourses page. It shouldn't be possible to unfavourite a course not in favourites, but if it happens, reloading will refresh the displayed favourites list to be only those courses on the favourites
+
     db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
     favourites = db.fetchall()
     completed = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id]).fetchall()
