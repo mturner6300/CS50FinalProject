@@ -630,7 +630,13 @@ def forgot():
         if email:
             security = db.execute("""SELECT security.question FROM security 
                                     JOIN users ON users.security_id=security.id 
-                                    WHERE users.email = ?""", [email]).fetchall()[0][0]
+                                    WHERE users.email = ?""", [email]).fetchall()
+            if security:
+                security = security[0][0]
+            else: 
+                message = "Enter a valid email"
+                return render_template("forgot.html", message=message)
+            
             session["emailforgot"] = email
             return render_template("forgot.html", security=security)
 
