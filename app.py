@@ -380,6 +380,7 @@ def mytracks():
 @app.route("/tracksearch", methods=(["GET","POST"]))
 @login_required
 def tracksearch():
+    # Connect to database, store user's query, get page number and store and cookie and create offset for pagination
     conn, db = make_cursor("coursedatabase.db")
     tracks = "currentpage"
     querystring = request.args.get("q")
@@ -417,7 +418,7 @@ def tracksearch():
 @app.route("/addconcentration", methods=(["GET","POST"]))
 @login_required
 def addconcentration():
-    # Stores page number from the cookie we created in searchresults
+    # Stores page number from the cookie we created in tracksearch, connect to database
     pagenum = session["page"]
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
@@ -427,11 +428,15 @@ def addconcentration():
     db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
     trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
+
+    # If selected course is not in their concentrations under their user id, add it and flash the user a message
     if len(rows) == 0:
         db.execute("INSERT INTO my_tracks (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
         conn.commit()
         session.pop('_flashes', None)
         flash (str(trackname[0][0]) + " added to your concentrations!")
+    
+    # If the course is in their concentrations, flash the user that it is already there.
     else:
         session.pop('_flashes', None)
         flash( str(trackname[0][0]) + " is already in your concentrations!")
@@ -443,7 +448,7 @@ def addconcentration():
 @app.route("/addsecondary", methods=(["GET","POST"]))
 @login_required
 def addsecondary():
-    # Stores page number from the cookie we created in searchresults
+    # Stores page number from the cookie we created in track search
     pagenum = session["page"]
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
@@ -453,11 +458,15 @@ def addsecondary():
     db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
     trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
+
+    # If selected course is not in their concentrations under their user id, add it and flash the user a message
     if len(rows) == 0:
         db.execute("INSERT INTO my_tracks (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
         conn.commit()
         session.pop('_flashes', None)
         flash (str(trackname[0][0]) + " added to your secondaries!")
+
+    # If the course is in their concentrations, flash the user that it is already there.
     else:
         session.pop('_flashes', None)
         flash( str(trackname[0][0]) + " is already in your secondaries!")
@@ -465,9 +474,11 @@ def addsecondary():
     return redirect(url_for("tracksearch",q=querystring, page=pagenum))
 
 """ Remove Concentration"""
+# Actiavted when a user clicks the remove concentration button on the mytracks page
 @app.route("/removeconcentration", methods=(["GET","POST"]))
 @login_required
 def removeconcentration():
+    # Connect to the database and store values for either the query or to render the template
     conn, db = make_cursor("coursedatabase.db")
     track_id = request.form.get("id")
     user_id = session["user_id"]
@@ -475,11 +486,14 @@ def removeconcentration():
     db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
     trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
+
+    # If the selected course is in their concentrations, remove it and flash the user a message saying it has been removed
     if len(rows) != 0:
         db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
         conn.commit()
         message = str(trackname[0][0]) + " removed from your concentrations!"
     
+    # Query all concetrations and secondaries to render the mytracks page correctly
     concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
@@ -488,9 +502,11 @@ def removeconcentration():
 
 
 """ Remove Secondary """
+# Activated when the user clicks the remove secondary button on the mytracks page
 @app.route("/removesecondary", methods=(["GET","POST"]))
 @login_required
 def removesecondary():
+    # Connect to database and store necessary information
     conn, db = make_cursor("coursedatabase.db")
     track_id = request.form.get("id")
     user_id = session["user_id"]
@@ -498,11 +514,14 @@ def removesecondary():
     db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
     trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
+
+    # If the selected course is in the user's secondaries, remove it and notify the user
     if len(rows) != 0:
         db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
         conn.commit()
         message2 = str(trackname[0][0]) + " removed from your secondaries!"
     
+    # Query the user's concentrations and secondaries to render the mytracks page correctly
     concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
@@ -510,6 +529,7 @@ def removesecondary():
     return render_template("mytracks.html",message2=message2, mytracks=mytracks, concentrations=concentrations, secondaries=secondaries)
 
 """ Account """
+# Redirects to the account page 
 @app.route("/account", methods=(["GET","POST"]))
 @login_required
 def account():
