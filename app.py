@@ -376,7 +376,6 @@ def tracksearch():
     else:
         db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?))", (querystring, querystring))
         results = db.fetchall()
-        print(results)
         total = results
 
         # If no results come back, redirect to search page which will display an error
@@ -398,8 +397,7 @@ def addconcentration():
     pagenum = session["page"]
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
-    track_id = request.form.get("conid")
-    print(track_id)
+    track_id = request.args.get("conid")
     querystring = session["last_search"]
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
     db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
@@ -414,7 +412,7 @@ def addconcentration():
         session.pop('_flashes', None)
         flash( str(trackname[0][0]) + " is already in your concentrations!")
         
-    return redirect(url_for("tracksearch",q=querystring, page=pagenum))
+    return redirect(url_for("tracksearch", q=querystring, page=pagenum))
     
 
 """ Add Secondary"""
