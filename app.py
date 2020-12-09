@@ -32,7 +32,7 @@ port = 465
 # Global constant for SMTP server
 smtp_server = "smtp.gmail.com"
 
-# Globals for product email and password
+# Globals for product email and password - this is unfortunate coding for security reasons, but we really ran out of time to try to find another solution
 ouremail = "abcdbcde99@gmail.com"
 ourpassword = "MineDiamonds1"
 
@@ -73,6 +73,7 @@ def login():
         if len(rows) != 1:
             return render_template("login.html", message="Username does not exist", login=login)
         
+        # Retrieve username and pasword hash from query and check for password correctness
         user_id, hashed_pass = rows[0]
         if not check_password_hash(hashed_pass,request.form.get("password")):
             return render_template("login.html", message="Wrong password", login=login)
@@ -87,8 +88,11 @@ def login():
 # Redirects to the registration page
 @app.route('/register', methods=["GET", "POST"])
 def register():
+    # Connect to database
     conn, db = make_cursor("coursedatabase.db")
+    # If the form was submitted
     if request.method == "POST":
+        # Retrieve security questions
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
 
@@ -134,13 +138,17 @@ def register():
         # If all conditions are met, let user know registration is complete and store their data
         else:
             db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", (username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer)))
+            # Permanently commit to database
             conn.commit()
+            # Store user's new id in a session to log them in
             session["user_id"] = db.execute("SELECT id FROM users WHERE username=?", [request.form.get("username")]).fetchall()[0][0]
+            # Let them know their account was successfully added
             session.pop('_flashes', None)
             flash('Account Made')
+            # Send them to the home page
             return redirect("/")
 
-    # If method is GET, connect to database and load form with security questions
+    # If method is GET, they are just viewing the page. Load form with security questions and pass to the html
     else:
         db.execute("SELECT * FROM security")
         questions = db.fetchall()
@@ -158,7 +166,9 @@ def about():
 @app.route("/tracks", methods=(["GET","POST"]))
 @login_required
 def tracks():
+    # Highlights the track search tab in the navigation bar
     tracks = "currentpage"
+    # Display the tracks page with track searchbar on it
     return render_template("tracks.html", tracks=tracks)
 
 """ Course Search"""
@@ -167,6 +177,7 @@ def tracks():
 def search():
     # Highlights the course search tab in the navigation bar
     search = "currentpage"
+    # Display the course search page with course searchbar
     return render_template("search.html", search=search)
 
 
@@ -176,12 +187,13 @@ def search():
 def searchresults():
 
     # Connects to database and stores user's search in variable and cookie
-    # Stores current page of results in a cookie for later and creates an offset for later
     conn, db = make_cursor("coursedatabase.db")
     search = "currentpage"
     querystring = request.args.get("q")
     session["last_search"] = querystring
-    page = request.args.get(get_page_parameter(), type=int, default=1) 
+    # Generate the current pages object to be able to paginate
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    # Stores current page of results in a cookie for later and creates an offset for later useing our preset perpage value
     session["page"] = page
     offset = (page - 1) * perpage
     
