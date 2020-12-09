@@ -132,7 +132,7 @@ def register():
             return render_template("register.html", error=error, questions=questions)
 
         # Return an error if email does not contain @. as proxy for valid email
-        elif "@." not in email:
+        elif "@" not in email:
             error = "Invalid email!"
             return render_template("register.html", error=error, questions=questions)
 
