@@ -41,12 +41,12 @@
         <td> <a href = " {{ link|e }}" target="_blank">{{ link }}</a> </td>
         <td>
             {% if type == "Concentration" %}
-            <form method="post" action=/addconcentration style="text-align: center;"> <button name="id" value="{{ i }}">
+            <form method="get" action=/addconcentration style="text-align: center;"> <button name="conid" value="{{ i }}">
             <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;"></form>
             {% endif %}
         </td>
         <td>
-            <form method="post" action=/addsecondary style="text-align: center;"> <button name="id" value="{{ i }}">
+            <form method="post" action=/addsecondary style="text-align: center;"> <button name="secid" value="{{ i }}">
             <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;"></form>
         </td>
       </tr>
