@@ -1,5 +1,6 @@
 # CS50FinalProject - myharvard2: Electric Boogaloo
 Ethan Arellano, Sam Blackman, Meghan Turner
+Video online at: https://youtu.be/wwsag9WcAMA
 
 This is a web application built on the python flask library aiming to improve upon the functionality of my.harvard's course and concentration functionalities. We use a number of libraries other than flask, so please bear with us as we guide you through setting these up so that you too can experience myharvard2: Electric Boogaloo. We highly recommend that you download Anaconda (https://www.anaconda.com/products/individual) for its command prompt and python libraries, GitHub Desktop (https://desktop.github.com/) to access the repository containing all of our files, and VS Code (https://code.visualstudio.com/) to interface with and read our code and SQL database. Furthermore, if you want to investigate our SQL further, we recommend this (https://marketplace.visualstudio.com/items?itemName=alexcvzz.vscode-sqlite) add-on for VS Code, though the code will run without it.
 
@@ -39,22 +40,44 @@ or
 python get-pip.py
 (Unix/macOS)
 
-Though beware that this may interefere with other 
+Though beware that this may interefere with other occurences of pip on your computer so don't do this if you already have it (please, run the installation/update checks above!)
 
-from flask import Blueprint, Flask, flash, redirect, render_template, request, session, url_for
-from helpers import login_required, make_cursor, refresh_placements
-from flask_session import Session
-from flask_paginate import Pagination, get_page_parameter
-from tempfile import mkdtemp
-from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-from werkzeug.security import check_password_hash, generate_password_hash
-import sqlite3
-import random
-import string
-import smtplib, ssl
-import os
-import ctypes
-import requests
-import urllib.parse
-import pandas as pd
-import math
+Now that you have pip you should be able to begin installing the libraries below through your prompt of choice.
+Please run either:
+
+pip install [replace with library]
+
+or 
+
+pip3 install [replace with library]
+for all of the following libraries
+(Anaconda users especially, you will notice that many of these are already installed! If they are, the command prompt should just tell you so!]):
+flask
+flask_session
+flask_paginate
+tempfile
+werkzeug.exceptions
+werkzeug.security
+werkzeug.security
+sqlite3
+random
+string
+smtplib
+ssl
+os
+ctypes
+requests
+urllib.parse
+pandas
+math
+
+(I would advise pip3, assuming you are using python 3, but either should work. If you use pip and then something breaks later on, there is a good chance you will need to run pip3 install instead)
+
+Please bear in mind, some of these are native to python (os, smtplib, ssl, etc.) so you should find a lot of these responding with already installed, but we would rather give you the full list than have you struggling to run anything because you didn't know to check!
+
+It should also be noted, you may need to download a DLL file for your OS for sqlite3 from (https://www.sqlite.org/download.html) and place it into the DLLs file in your anaconda files at C:\Users\YOURUSER\Anaconda3\DLLs or C:\ProgramData\Anaconda3\DLLs
+if you are an anaconda user. This may or may not be necessary to run populatedatabase.py, which leads hopefully nicely into the structure of our project.
+
+Our main project folder, titled "CS50FINALPROJECT" contains a python cache folder "_pycache_" of recent changes to/by python files (you will never need to open this), a folder "static" in which all our static files (i.e. images, backgrounds, csv files) have been placed, a folder "templates" which contains all our html files including "layout.html" which is the file that sets the base layout for all other htmls, a folder "venv" which supports setting up a virtual environment through which to host the website if you are running it through your native command prompt (more on this below), app.py which is the flask application that implements most of our functionality, coursedatabase.db which is the database for our site, DESIGN.md which contains details of our design process, helpers.py which contains a few functions we separated out from app.py for concision, myharvard2.sql which contains sql that designed and reset the original sql database, populatedatabase.py which designs and resets our final iteration of the sql database, and a recording of our video, which can also be found at https://youtu.be/wwsag9WcAMA
+
+

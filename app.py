@@ -23,11 +23,6 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Define function to intialise database
-def make_cursor(database):
-    connection = sqlite3.connect(database)
-    return connection, connection.cursor()
-
 # Global constant to limit search results to 25 per page
 perpage = 25
 
