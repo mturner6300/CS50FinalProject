@@ -3,6 +3,60 @@
 
 <h1>This is the My Tracks Page</h1>
 
+<h2> My Concentration Tracks </h2>
+<table>
+    <thead>
+      <tr>
+        <th> # </th>
+        <th> Name </th>
+        <th> Description </th>
+        <th> Requirements </th>
+        <th> Remove Concentration </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i, name, desc, link in concentrations %}
+        <tr>
+          <td>{{ loop.index}}</td>
+          <td> {{ name }} </td>
+          <td> {{ desc }} </td>
+          <td> <a href = " {{ link|e }}" target="_blank">{{ link }}</a>  </td>
+          <td> <form method="post" action="/removeconcentration" style="text-align: center;"> <button name="id" value="{{ i }}">
+            <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
+            </form> </button> </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2 style="text-align: center;"> My Secondary Tracks </h2>
+<h3> {{ complete }} </h3>
+
+<table>
+  <thead>
+    <tr>
+        <th> # </th>
+        <th> Name </th>
+        <th> Description </th>
+        <th> Requirements </th>
+        <th> Remove Secondary </th>
+    </tr>
+  </thead>
+  <tbody>
+      {% for i, name, desc, code in completed %}
+      <tr>
+        <td>{{ loop.index}}</td>
+        <td> {{ name }} </td>
+        <td> {{ desc }} </td>
+        <td> <a href = " {{ link|e }}" target="_blank">{{ link }}</a>  </td>
+        <td> <form method="post" action="/removeconcentration" style="text-align: center;"> <button name="id" value="{{ i }}">
+            <img src="/static/noun_Star_750825.png" alt="Star by Zaff Studio from the Noun Project" style="width:20px;height:24px;">
+            </form> </button> </td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+
 
 
 

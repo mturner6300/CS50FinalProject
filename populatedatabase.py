@@ -37,6 +37,7 @@ db.execute("DROP TABLE IF EXISTS placements;")
 db.execute("DROP TABLE IF EXISTS placement_types;")
 db.execute("DROP TABLE IF EXISTS placement_courses;")
 db.execute("DROP TABLE IF EXISTS expos;")
+db.execute("DROP TABLE IF EXISTS mytracks")
 conn.commit()
 
 # Create most updated database structure
@@ -185,6 +186,14 @@ db.execute("""CREATE TABLE placement_courses (
             placement_type_id INTEGER NOT NULL,
             PRIMARY KEY(id),
             FOREIGN KEY(placement_type_id) REFERENCES placement_types(id)
+            );""")
+
+db.execute("""CREATE TABLE my_tracks (
+            user_id INTEGER NOT NULL,
+            track_id INTEGER NOT NULL,
+            track_type_id INTEGER NOT NULL,
+            FOREIGN KEY(user_id) REFERENCES users(id),
+            FOREIGN KEY(track_id) REFERENCES courses(id)
             );""")
 
 expos = db.execute("""SELECT id FROM placement_types WHERE placement_type = "Expos";""").fetchone()
@@ -345,5 +354,7 @@ for row in frame.itertuples():
                     VALUES
                     (?, ?, ?, ?)
                     """, (row.name, row.description, row.link, id))
+
+
 
 conn.commit()
