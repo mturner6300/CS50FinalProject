@@ -459,8 +459,8 @@ def removeconcentration():
     concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
-    mycourses = "currentpage"
-    return render_template("mytracks.html",message=message, mycourses=mycourses, concentrations=concentrations, secondaries=secondaries)
+    mytracks = "currentpage"
+    return render_template("mytracks.html",message=message, mytracks=mytracks, concentrations=concentrations, secondaries=secondaries)
 
 
 """ Remove Secondary """
@@ -482,8 +482,8 @@ def removesecondary():
     concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
-    mycourses = "currentpage"
-    return render_template("mytracks.html",message2=message2, mycourses=mycourses, concentrations=concentrations, secondaries=secondaries)
+    mytracks = "currentpage"
+    return render_template("mytracks.html",message2=message2, mytracks=mytracks, concentrations=concentrations, secondaries=secondaries)
 
 """ Account """
 @app.route("/account", methods=(["GET","POST"]))
