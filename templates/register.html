@@ -3,25 +3,40 @@
 <style>
     main {
         text-align: center;
-        padding-top: 2rem;
         font-family: sans-serif;
     }
     .form-group :focus {
-        border-color: #66afe9;
+        border-color: #49cadb;
         outline: 0;
         -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
         box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
     }  
 
     input:placeholder-shown {
-    border-color: hsl(0, 76%, 50%);;
+        border-color: hsl(229, 76%, 40%);
         }
+
+    button {
+        margin-top: 1rem;
+        padding: 10pt;
+        border-radius: 500%;
+
+    }
+    .form-group select, input {
+        height: 20pt;
+        width: 300pt;
+        margin-top: 1%;
+    }
 </style>
-<h1>Fill in the information below to register.</h1>
+
+<img src="static/snowscene.jpg" alt="Space Photo" class="photocenter" height="1000px">
+
+
+<h1 style= "margin-top: -53%;">Fill in the information below to register</h1>
 {% if error %}
     <h2> {{ error }} </h2>
 {% endif %}
-<form action="/register" method="post">
+<form action="/register" method="post" style="margin-top: 5%;">
     <div class="form-group">
         <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
     </div>

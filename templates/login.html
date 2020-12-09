@@ -3,11 +3,35 @@
 <style>
     main {
         text-align: center;
-        padding-top: 2rem;
         font-family: sans-serif;
     }
+    .form-group :focus {
+        border-color: #49cadb;
+        outline: 0;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    }  
+
+    input:placeholder-shown {
+        border-color: hsl(229, 76%, 40%);
+        }
+
+    button {
+        margin-top: 1rem;
+        padding: 10pt;
+        border-radius: 500%;
+
+    }
+    .form-group select, input {
+        height: 20pt;
+        width: 300pt;
+        margin-top: 1%;
+    }
 </style>
-<h2>Please Login or <a href="/register"> Register </a></h2>
+
+<img src="static/lake.jpg" alt="Lake Photo" class="photocenter" height="1000px">
+
+<h2 style="margin-top: -44%;">Please Login or <a href="/register"> Register </a></h2>
     <form action="/login" method="post">
         <div class="form-group">
             <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
@@ -22,6 +46,6 @@
 <h1> {{ message }} </h1>
 {% endif %}
 
-<a href="/forgot"> Forgot username or password? </a>
+<a href="/forgot" style="margin-top: 3%;"> Forgot username or password? </a>
 
 {% endblock %}
