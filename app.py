@@ -347,9 +347,8 @@ def schedule():
 @app.route("/mytracks", methods=(["GET","POST"]))
 @login_required
 def mytracks():
-    tracks = "currentpage"
-    mytracks = "currentpage1"
-    return render_template("mytracks.html", tracks=tracks, mytracks=mytracks)
+    mytracks = "currentpage"
+    return render_template("mytracks.html",mytracks=mytracks)
 
 """ Track Search"""
 @app.route("/tracksearch", methods=(["GET","POST"]))

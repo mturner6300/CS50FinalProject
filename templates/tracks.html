@@ -1,33 +1,22 @@
 {% extends "layout.html" %}
 {% block main %}
-<div class="header1">
-    <div class="topbar">
-        <div class= "nav1">
-            <ul>
-                <li>
-                    <div class="searchbar" style="display: inline; justify-content: center;"> 
-                        <form action="/tracksearch" method="post"> 
-                            <button>
-                                <img src="/static/magnify.png">
-                            </button>
-                            <input autocomplete="off" type="text"
-                            placeholder=" Search "
-                            name="q"> 
-                        </form> 
-                    </div>
-                </li>
-                <li style = "float:right">
-                    <a class=" {{ mytracks }} " href="/mytracks"> My Tracks </a>
-                </li>
-                <li style = "float:right">
-                    <a class=" {{ trackplanner }} " href="/trackplanner"> Track Planner </a>
-                </li>
-            </ul>
-        </div>
+
+
+
+<h1 style="text-align: center; justify-content: center; margin-top: 5%;">Tracks</h1>
+
+<div style="align-self: center;">
+    <div class="searchbar" style="margin-top: 2%; display:flex; align-items: center; justify-content: center; padding-left: 8%;"> 
+        <form action="/tracksearch" method="post"> 
+            <button>
+                <img src="/static/magnify.png">
+            </button>
+            <input autocomplete="off" type="text"
+            placeholder=" Search "
+            name="q"> 
+        </form> 
     </div>
 </div>
-<h1>This is the Tracks Page</h1>
-
 
 
 
