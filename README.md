@@ -106,6 +106,8 @@ from which you can copy the returned url e.g. http://123.0.0.4:5678/ into your w
 
 You should be welcomed with the index page, which will allow you to register via a button in the center of the screen. This will redirect you to fill in your information, including a REAL EMAIL ADDRESS, which will enable our functionality for forgotten usernames/passwords. We implemented a cursory check for real email addresses (see design for more information) but we are aware that this is not 100% sufficient for somebody trying to fool the site. Be aware, if you fool the site and do not enter an email address that is a. real and b. accessible by you, you will not be able to retrieve your account. You don't need to register immediately, you can take a look at the about us page.
 
+A note: it appears that some PCs may have differing settings which affect how high/low on the screen the text and features appear. If we had used bootstrap we might have been able to solve this, but it was an issue we did not notice until late on when we had already decided against using bootstrap. Zooming out to 75% on your browser should settings make everything visible as in the video if this is an issue. Apologies!
+
 Once you register (confirming your information correctly, unique username, an email address), the site will automatically log you in, giving you free reign to try out the site. For more information on the rest of the site, see DESIGN.md
 
 Virtual Environment Usage:
