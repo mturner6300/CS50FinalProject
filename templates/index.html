@@ -23,7 +23,9 @@
     “Give me six hours to chop down a tree and I will spend the first four sharpening the axe.” 
     <br>Abraham Lincoln
 </p>
+{% if not session.user_id %}
 <div class="Registerbuttondiv">
     <a href="/register" class="Registerbuttona"> Register </a>
 </div>
+{%endif%}
 {% endblock %}

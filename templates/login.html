@@ -19,7 +19,7 @@
     button {
         margin-top: 1rem;
         padding: 10pt;
-        border-radius: 500%;
+        border-radius: 15%;
 
     }
     .form-group select, input {
@@ -31,7 +31,7 @@
 
 <img src="static/lake.jpg" alt="Lake Photo" class="photocenter" height="1000px">
 
-<h2 style="margin-top: -44%;">Please Login or <a href="/register"> Register </a></h2>
+<h2 style="margin-top: -44%;">Please Login or <a href="/register" style="text-decoration: none;"> Register </a></h2>
     <form action="/login" method="post">
         <div class="form-group">
             <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
@@ -45,7 +45,7 @@
 {% if message %}
 <h1> {{ message }} </h1>
 {% endif %}
-
-<a href="/forgot" style="margin-top: 3%;"> Forgot username or password? </a>
-
+<div style="margin-top: 1%;">
+    <a href="/forgot" style="text-decoration: none;"> Forgot username or password? </a>
+</div>
 {% endblock %}
