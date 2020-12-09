@@ -12,12 +12,12 @@ def login_required(f):
 
     https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
     """
-    # Ensures function f is included in this function
+    # Ensures following function is included in this function f
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # If there is no user logged in
         if session.get("user_id") is None:
-            # End function before wrapped function
+            # End function before wrapped function's functionality begins
             return redirect("/login")
         # Otherwise there is a user logged in, so continue with function f
         return f(*args, **kwargs)
