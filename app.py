@@ -237,30 +237,20 @@ def favourite():
     mycourses = "currentpage"
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
-    if request.method == "GET":
-        db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
-        results = db.fetchall()
-        if not results:
-            return render_template("search.html", querystring="your favourites", search=search)
-        else:
-            page = request.args.get(get_page_parameter(), type=int, default=1) 
-            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
-            return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
+    course_id = request.form.get("id")
+    querystring = session["last_search"]
+    db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+    rows = db.fetchall()
+    coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
+    if len(rows) == 0:
+        db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
+        flash(str(coursecode[0][0]) + ' has been added to favourites!')
+        conn.commit()
     else:
-        course_id = request.form.get("id")
-        querystring = session["last_search"]
-        db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
-        rows = db.fetchall()
-        coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
-        if len(rows) == 0:
-            db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
-            flash(str(coursecode[0][0]) + ' has been added to favourites!')
-            conn.commit()
-        else:
-            session.pop('_flashes', None)
-            flash( str(coursecode[0][0]) + ' is already in your favourites!')
+        session.pop('_flashes', None)
+        flash( str(coursecode[0][0]) + ' is already in your favourites!')
         
-        return redirect(url_for("searchresults",q=querystring, page=pagenum))
+    return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
 """ Remove Favourite"""
 @app.route("/removefavourite", methods=(["GET","POST"]))
@@ -349,6 +339,7 @@ def schedule():
 def mytracks():
     tracks = "currentpage"
     mytracks = "currentpage1"
+    
     return render_template("mytracks.html", tracks=tracks, mytracks=mytracks)
 
 """ Track Search"""
@@ -548,7 +539,7 @@ def forgot():
                 if check_password_hash(answerhash, answer):
                     letters = string.ascii_letters
                     numbers = string.digits
-                    newpass = "".join(random.choice(letters) for i in range(int(random.choice(numbers)))).join(random.choice(numbers) for i in range(int(random.choice(numbers))))
+                    newpass = "".join(random.choice(letters) for i in range(10)).join(random.choice(numbers) for i in range(int(10))
                     newhash = generate_password_hash(newpass)
                     db.execute("""UPDATE users 
                                 SET hashedpass = ?
