@@ -147,10 +147,12 @@ db.execute("""CREATE TABLE users (
             security_hash TEXT NOT NULL,
             exposplacement INTEGER,
             mathsplacement INTEGER,
+            lifesciplacement INTEGER,
             PRIMARY KEY(id),
-            FOREIGN KEY(security_id) REFERENCES security(id)
-            FOREIGN KEY(exposplacement) REFERENCES courses(id)
-            FOREIGN KEY(mathsplacement) REFERENCES courses(id)
+            FOREIGN KEY(security_id) REFERENCES security(id),
+            FOREIGN KEY(exposplacement) REFERENCES placement_courses(id),
+            FOREIGN KEY(mathsplacement) REFERENCES placement_courses(id),
+            FOREIGN KEY(mathsplacement) REFERENCES placement_courses(id)
             );""")
 
 db.execute("""CREATE TABLE favourites (

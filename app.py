@@ -358,7 +358,7 @@ def mytracks():
 def tracksearch():
     conn, db = make_cursor("coursedatabase.db")
     tracks = "currentpage"
-    querystring = request.form.get("q")
+    querystring = request.args.get("q")
     session["last_search"] = querystring
     page = request.args.get(get_page_parameter(), type=int, default=1) 
     session["page"] = page
@@ -372,20 +372,21 @@ def tracksearch():
         pagination = Pagination(page=page, total=len(total), search=False, record_name='tracks', per_page=perpage, css_framework='bootstrap4')
         return render_template("tracksearch.html", querystring=querystring, tracks=tracks, results=results, pagination=pagination)
 
-    # Otherwise, query for courses where the user's search is in the course name or course code           
+    # Otherwise, query for courses where the user's search is in the track name or description           
     else:
         db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?))", (querystring, querystring))
         results = db.fetchall()
+        print(results)
         total = results
 
         # If no results come back, redirect to search page which will display an error
         if not results:
-            return render_template("tracksearch.html", querystring=querystring, tracks=tracks)
+            return render_template("tracks.html", querystring=querystring, tracks=tracks)
         
         # If there are results for the search, paginate and display them
         else:
-            db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?)) LIMIT ? OFFSET ?", (querystring, querystring, perpage, offset))
-            results = db.fetchall()
+            # db.execute("SELECT tracks.id, name, description, link, type FROM tracks JOIN track_types ON tracks.type_id = track_types.id WHERE INSTR(LOWER(name),LOWER(?)) OR INSTR(LOWER(description),LOWER(?)) LIMIT ? OFFSET ?", (querystring, querystring, perpage, offset))
+            # results = db.fetchall()
             pagination = Pagination(page=page, total=len(total), search=False, record_name='courses', per_page=perpage, css_framework='bootstrap4')
             return render_template("tracksearch.html", querystring=querystring, tracks=tracks, results=results, pagination=pagination)
 
@@ -397,14 +398,15 @@ def addconcentration():
     pagenum = session["page"]
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
-    track_id = request.form.get("id")
+    track_id = request.form.get("conid")
+    print(track_id)
     querystring = session["last_search"]
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
-    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
-    if len(rows) != 0:
-        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
-        db.execute("INSERT INTO my_tracks  (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
+    trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
+    if len(rows) == 0:
+        db.execute("INSERT INTO my_tracks (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
         conn.commit()
         session.pop('_flashes', None)
         flash (str(trackname[0][0]) + " added to your concentrations!")
@@ -423,21 +425,21 @@ def addsecondary():
     pagenum = session["page"]
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
-    track_id = request.form.get("id")
+    track_id = request.form.get("secid")
     querystring = session["last_search"]
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
-    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
-    if len(rows) != 0:
-        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
-        db.execute("INSERT INTO my_tracks  (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
+    trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
+    if len(rows) == 0:
+        db.execute("INSERT INTO my_tracks (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
         conn.commit()
         session.pop('_flashes', None)
         flash (str(trackname[0][0]) + " added to your secondaries!")
     else:
         session.pop('_flashes', None)
         flash( str(trackname[0][0]) + " is already in your secondaries!")
-        
+
     return redirect(url_for("tracksearch",q=querystring, page=pagenum))
 
 """ Remove Concentration"""
@@ -448,10 +450,10 @@ def removeconcentration():
     track_id = request.form.get("id")
     user_id = session["user_id"]
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
-    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
+    trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
     if len(rows) != 0:
-        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
         db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
         conn.commit()
         message = str(trackname[0][0]) + " removed from your concentrations!"
@@ -471,10 +473,10 @@ def removesecondary():
     track_id = request.form.get("id")
     user_id = session["user_id"]
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
-    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    db.execute("SELECT * FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
     rows = db.fetchall()
+    trackname =  db.execute("SELECT tracks.name FROM tracks WHERE id=?", [track_id]).fetchall()
     if len(rows) != 0:
-        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
         db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
         conn.commit()
         message = str(trackname[0][0]) + " removed from your concentrations!"
