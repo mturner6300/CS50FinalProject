@@ -1,7 +1,6 @@
 import pandas as pd
 import sqlite3
 from helpers import make_cursor
-import math
 
 # Import from CSV file the data scraped from my.harvard 
 data = pd.read_csv(r'static/HarvardCourses-DataMinerMostCompleteSet.csv')

@@ -70,7 +70,6 @@ ctypes
 requests
 urllib.parse
 pandas
-math
 functools
 
 (I would advise pip3, assuming you are using python 3, but either should work. If you use pip and then something breaks later on, there is a good chance you will need to run pip3 install instead)
