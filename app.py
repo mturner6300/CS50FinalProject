@@ -293,12 +293,11 @@ def removefavourite():
         # If it's in favourites, retrieve course code, delete, and prepare success message
         coursecode =  db.execute("SELECT courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ? AND favourites.course_id = ?", (user_id, course_id)).fetchall()
         db.execute("DELETE FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
-        # 
+        # Save to database
         conn.commit()
         message = str(coursecode[0][0]) + " removed from favourites!"
     
     # If not, just reload the mycourses page. It shouldn't be possible to unfavourite a course not in favourites, but if it happens, reloading will refresh the displayed favourites list to be only those courses on the favourites
-
     db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
     favourites = db.fetchall()
     completed = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id]).fetchall()
@@ -306,69 +305,67 @@ def removefavourite():
     return render_template("mycourses.html",message=message, mycourses=mycourses, favourites=favourites, completed=completed)
 
 """ Completed Courses"""
-@app.route("/completed", methods=(["GET","POST"]))
+# Activated when a course is added as a complelted course
+@app.route("/completed", methods=(["POST"]))
 @login_required
 def completed():
+    # Store the current page number from a cookie, connect to database with correct user id
     pagenum = session["page"]
     mycourses = "currentpage"
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
-    if request.method == "GET":
-        db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id])
-        results = db.fetchall()
-        if not results:
-            return render_template("search.html", querystring="your favourites", search=search)
-        else:
-            page = request.args.get(get_page_parameter(), type=int, default=1) 
-            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
-            return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
+
+    # Gather course_id and coursecode from the form and query for that course 
+    course_id = request.form.get("check")
+    coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
+    querystring = session["last_search"]
+    db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
+    rows = db.fetchall()
+    flash(str(coursecode[0][0]) + ' has been added to your completed courses!')
+
+    # Add the selected course into the database
+    if len(rows) == 0:
+        db.execute("INSERT INTO completed VALUES(?,?)", (user_id, course_id))
+        conn.commit()
+    
+    # If the selected course is already in the database, flash an error message to the user 
     else:
-        course_id = request.form.get("check")
-        coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
-        querystring = session["last_search"]
-        db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
-        rows = db.fetchall()
-        flash(str(coursecode[0][0]) + ' has been added to your completed courses!')
-        if len(rows) == 0:
-            db.execute("INSERT INTO completed VALUES(?,?)", (user_id, course_id))
-            conn.commit()
-        else:
-            session.pop('_flashes', None)
-            flash(str(coursecode[0][0]) + ' is already in your completed courses!')
-        
-        return redirect(url_for("searchresults",q=querystring, page=pagenum))
+        session.pop('_flashes', None)
+        flash(str(coursecode[0][0]) + ' is already in your completed courses!')
+    
+    return redirect(url_for("searchresults",q=querystring, page=pagenum))
 
 """ Remove Completed """
+# Activated when a completed course is removed from the "My Courses" page
 @app.route("/removecompleted", methods=(["GET","POST"]))
 @login_required
 def removecompleted():
+    # Connect to the database and collect the user id as well as the course_id of the course to be removed 
     conn, db = make_cursor("coursedatabase.db")
     course_id = request.form.get("remcomplete")
     user_id = session["user_id"]
     db.execute("SELECT * FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
     rows = db.fetchall()
+
+    # As long as that course exists in the database, delete it from the database and flash a message to the user
     if len(rows) != 0:
         coursecode =  db.execute("SELECT courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ? AND completed.course_id = ?", (user_id, course_id)).fetchall()
         db.execute("DELETE FROM completed WHERE user_id = ? AND course_id = ?", (user_id, course_id))
         conn.commit()
         complete = str(coursecode[0][0]) + " removed from completed courses!"
     
+    # Query all favourites and completed courses of the user to render the mycourses page correctly
     favourites = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id]).fetchall()
     completed = db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN completed ON completed.course_id = courses.id WHERE completed.user_id = ?", [user_id]).fetchall()
     mycourses = "currentpage"
     return render_template("mycourses.html", complete=complete, completed=completed, mycourses=mycourses, favourites=favourites)
 
-""" Schedule """
-@app.route("/schedule", methods=(["GET","POST"]))
-@login_required
-def schedule():
-    schedule = "currentpage"
-    return render_template("schedule.html", schedule=schedule)
-
 """ My Tracks """
+# Redirects to the mytracks page
 @app.route("/mytracks", methods=(["GET","POST"]))
 @login_required
 def mytracks():
+    # Connect to database, store all the concentrations and secondaries of the user and retun them to the mytracks template
     mytracks = "currentpage"
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
@@ -376,10 +373,10 @@ def mytracks():
     concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
-
     return render_template("mytracks.html",mytracks=mytracks, concentrations=concentrations, secondaries=secondaries)
 
 """ Track Search Results"""
+# Displays the search results from the search bar on the tracks page
 @app.route("/tracksearch", methods=(["GET","POST"]))
 @login_required
 def tracksearch():
