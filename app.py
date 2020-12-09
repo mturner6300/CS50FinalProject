@@ -131,6 +131,11 @@ def register():
             error = "Email already has an account!"
             return render_template("register.html", error=error, questions=questions)
 
+        # Return an error if email does not contain @. as proxy for valid email
+        elif "@." not in email:
+            error = "Invalid email!"
+            return render_template("register.html", error=error, questions=questions)
+
         # If all conditions are met, let user know registration is complete and store their data
         else:
             db.execute("INSERT INTO users (username, email, hashedpass, security_id, security_hash) VALUES (?, ?, ?, ?, ?)", (username, email, generate_password_hash(password),security_id, generate_password_hash(security_answer)))
