@@ -343,9 +343,16 @@ def schedule():
 @login_required
 def mytracks():
     mytracks = "currentpage"
-    return render_template("mytracks.html",mytracks=mytracks)
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
+    concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
+    secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
 
-""" Track Search"""
+    return render_template("mytracks.html",mytracks=mytracks, concentrations=concentrations, secondaries=secondaries)
+
+""" Track Search Results"""
 @app.route("/tracksearch", methods=(["GET","POST"]))
 @login_required
 def tracksearch():
@@ -386,43 +393,97 @@ def tracksearch():
 @app.route("/addconcentration", methods=(["GET","POST"]))
 @login_required
 def addconcentration():
+    # Stores page number from the cookie we created in searchresults
     pagenum = session["page"]
-    mycourses = "currentpage"
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
-    if request.method == "GET":
-        db.execute("SELECT courses.id, courses.name, courses.description, courses.code FROM courses JOIN favourites ON favourites.course_id = courses.id WHERE favourites.user_id = ?", [user_id])
-        results = db.fetchall()
-        if not results:
-            return render_template("search.html", querystring="your favourites", search=search)
-        else:
-            page = request.args.get(get_page_parameter(), type=int, default=1) 
-            pagination = Pagination(page=page, total=len(results), search=False, record_name='courses')
-            return render_template("results.html", mycourses=mycourses, results=results, pagination=pagination)
+    track_id = request.form.get("id")
+    querystring = session["last_search"]
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
+    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    rows = db.fetchall()
+    if len(rows) != 0:
+        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
+        db.execute("INSERT INTO my_tracks  (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
+        conn.commit()
+        session.pop('_flashes', None)
+        flash (str(trackname[0][0]) + " added to your concentrations!")
     else:
-        course_id = request.form.get("id")
-        querystring = session["last_search"]
-        db.execute("SELECT * FROM favourites WHERE user_id = ? AND course_id = ?", (user_id, course_id))
-        rows = db.fetchall()
-        coursecode =  db.execute("SELECT code FROM courses WHERE id = ?", [course_id]).fetchall()
-        if len(rows) == 0:
-            db.execute("INSERT INTO favourites VALUES(?,?)", (user_id, course_id))
-            flash(str(coursecode[0][0]) + ' has been added to favourites!')
-            conn.commit()
-        else:
-            session.pop('_flashes', None)
-            flash( str(coursecode[0][0]) + ' is already in your favourites!')
+        session.pop('_flashes', None)
+        flash( str(trackname[0][0]) + " is already in your concentrations!")
         
-        return redirect(url_for("searchresults",q=querystring, page=pagenum))
+    return redirect(url_for("tracksearch",q=querystring, page=pagenum))
+    
 
-
-""" Track Planner """
-@app.route("/trackplanner", methods=(["GET","POST"]))
+""" Add Secondary"""
+@app.route("/addsecondary", methods=(["GET","POST"]))
 @login_required
-def trackplanner():
-    tracks = "currentpage"
-    trackplanner = "currentpage1"
-    return render_template("trackplanner.html", tracks=tracks, trackplanner=trackplanner)
+def addsecondary():
+    # Stores page number from the cookie we created in searchresults
+    pagenum = session["page"]
+    conn, db = make_cursor("coursedatabase.db")
+    user_id = session["user_id"]
+    track_id = request.form.get("id")
+    querystring = session["last_search"]
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
+    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    rows = db.fetchall()
+    if len(rows) != 0:
+        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
+        db.execute("INSERT INTO my_tracks  (user_id, track_id, track_type_id) VALUES (?, ?, ?)", (user_id, track_id, track_type_id))
+        conn.commit()
+        session.pop('_flashes', None)
+        flash (str(trackname[0][0]) + " added to your secondaries!")
+    else:
+        session.pop('_flashes', None)
+        flash( str(trackname[0][0]) + " is already in your secondaries!")
+        
+    return redirect(url_for("tracksearch",q=querystring, page=pagenum))
+
+""" Remove Concentration"""
+@app.route("/removeconcentration", methods=(["GET","POST"]))
+@login_required
+def removeconcentration():
+    conn, db = make_cursor("coursedatabase.db")
+    track_id = request.form.get("id")
+    user_id = session["user_id"]
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
+    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    rows = db.fetchall()
+    if len(rows) != 0:
+        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
+        db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+        conn.commit()
+        message = str(trackname[0][0]) + " removed from your concentrations!"
+    
+    concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
+    secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
+    mycourses = "currentpage"
+    return render_template("mytracks.html",message=message, mycourses=mycourses, concentrations=concentrations, secondaries=secondaries)
+
+
+""" Remove Secondary """
+@app.route("/removesecondary", methods=(["GET","POST"]))
+@login_required
+def removesecondary():
+    conn, db = make_cursor("coursedatabase.db")
+    track_id = request.form.get("id")
+    user_id = session["user_id"]
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Secondary" """).fetchall()[0][0]
+    db.execute("SELECT * FROM mytracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+    rows = db.fetchall()
+    if len(rows) != 0:
+        trackname =  db.execute("SELECT tracks.name FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND my_tracks.course_id = ? AND track_type_id = ?", (user_id, course_id, track_type_id)).fetchall()
+        db.execute("DELETE FROM my_tracks WHERE user_id = ? AND track_id = ? AND track_type_id = ?", (user_id, track_id, track_type_id))
+        conn.commit()
+        message = str(trackname[0][0]) + " removed from your concentrations!"
+    
+    concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
+    secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
+    mycourses = "currentpage"
+    return render_template("mytracks.html",message=message, mycourses=mycourses, concentrations=concentrations, secondaries=secondaries)
 
 """ Account """
 @app.route("/account", methods=(["GET","POST"]))
