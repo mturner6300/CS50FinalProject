@@ -37,7 +37,7 @@ db.execute("DROP TABLE IF EXISTS placements;")
 db.execute("DROP TABLE IF EXISTS placement_types;")
 db.execute("DROP TABLE IF EXISTS placement_courses;")
 db.execute("DROP TABLE IF EXISTS expos;")
-db.execute("DROP TABLE IF EXISTS mytracks")
+db.execute("DROP TABLE IF EXISTS my_tracks")
 conn.commit()
 
 # Create most updated database structure
