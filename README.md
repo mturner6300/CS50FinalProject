@@ -16,6 +16,8 @@ or
 python -m pip --version 
 (Unix/macOS)
 
+(You may need to run these same lines with either "py3" or "python3" if you have multiple versions of Python installed)
+
 to check if pip is already installed (as it should be with any recent python build or Anaconda). If pip needs an update you can do so with:
 
 py -m pip install -U pip
@@ -69,6 +71,7 @@ requests
 urllib.parse
 pandas
 math
+functools
 
 (I would advise pip3, assuming you are using python 3, but either should work. If you use pip and then something breaks later on, there is a good chance you will need to run pip3 install instead)
 
@@ -81,7 +84,7 @@ Our main project folder, titled "CS50FINALPROJECT" contains a python cache folde
 
 If you are missing any of these files, then you may want to repeat whatever you did in order to collect them, view/clone our public github repo at(https://github.com/mturner6300/CS50FinalProject), or reach out to us to let us know that we are missing something (god-willing, we won't be).
 
-You should now be able to change directory in yor command prompt into the folder in which our programme is downloaded on your device with a line of code like:
+You should now be able to change directory in yor command prompt into the folder in which our program is downloaded on your device with a line of code like:
 cd route\CS50FinalProject
 
 On my computer, this line is:
@@ -105,3 +108,35 @@ from which you can copy the returned url e.g. http://123.0.0.4:5678/ into your w
 You should be welcomed with the index page, which will allow you to register via a button in the center of the screen. This will redirect you to fill in your information, including a REAL EMAIL ADDRESS, which will enable our functionality for forgotten usernames/passwords. We implemented a cursory check for real email addresses (see design for more information) but we are aware that this is not 100% sufficient for somebody trying to fool the site. Be aware, if you fool the site and do not enter an email address that is a. real and b. accessible by you, you will not be able to retrieve your account. You don't need to register immediately, you can take a look at the about us page.
 
 Once you register (confirming your information correctly, unique username, an email address), the site will automatically log you in, giving you free reign to try out the site. For more information on the rest of the site, see DESIGN.md
+
+Virtual Environment Usage:
+
+Because we have used different versions of Python and its libraries in other classes, we created a virtual environment (venv folder) as to not conflict with any other versions of Python/libraries we may already have installed in our computers.
+
+If you also have possible conflicting versions of Python and want to use our virtual environemnt (which should have all libraries and dependencies installed), you can do so by doing the following:
+
+1) Enter the CS50FinalProject directory.
+
+2) Run the following line of code:
+
+venv\Scripts\activate
+
+which should return: (venv) ***YOUR CURRENT PATHWAY*** 
+
+for example: (venv) C:\Users\Meghan\Documents\GitHub\CS50FinalProject> 
+
+Now you can run: flask run
+
+and receive the similar to message to the one above:
+
+* Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+
+Disclaimer on Virtual Environment:
+
+We have installed libraries for features we had planned to implement at one point but have now decided against adding. We have tried to remove these files from the virtual environment but may have overlooked a few due to the number of packages installed. These should not impact the functionality of the website. 
+
+Lastly, as only one member of the group was using the virtual environment and installing packages to that location, an installation may have been overlooked for a feature added by the other members. If you find a package is not installed, you may run the "pip install **library**" commands referenced earlier in this document in the venv directory to add the necessary files. 
