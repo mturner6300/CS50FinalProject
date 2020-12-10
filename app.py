@@ -9,8 +9,7 @@ import sqlite3
 import random
 import string
 import smtplib, ssl
-import os
-import ctypes
+
 
 app = Flask(__name__)
 
@@ -405,7 +404,9 @@ def tracksearch():
 
         # If no results come back, redirect to search page which will display an error
         if not results:
-            return render_template("tracks.html", querystring=querystring, tracks=tracks)
+            message = "You searched for " + str(querystring) + " but we couldn't find anything."
+            print(message)
+            return render_template("tracks.html", querystring=querystring, tracks=tracks, message=message)
         
         # If there are results for the search, paginate and display them
         else:
@@ -522,9 +523,9 @@ def removesecondary():
         message2 = str(trackname[0][0]) + " removed from your secondaries!"
     
     # Query the user's concentrations and secondaries to render the mytracks page correctly
-    concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
-    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
     secondaries = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
+    track_type_id = db.execute("""SELECT id FROM track_types WHERE type = "Concentration" """).fetchall()[0][0]
+    concentrations = db.execute("SELECT tracks.id, tracks.name, tracks.description, tracks.link FROM tracks JOIN my_tracks ON my_tracks.track_id = tracks.id WHERE my_tracks.user_id = ? AND track_type_id = ?", (user_id, track_type_id)).fetchall()
     mytracks = "currentpage"
     return render_template("mytracks.html",message2=message2, mytracks=mytracks, concentrations=concentrations, secondaries=secondaries)
 
