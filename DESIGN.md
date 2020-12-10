@@ -33,4 +33,4 @@ This leads on to our database design, which we elected to include in full, despi
 
 We datascraped...
 
-
+The register function was created using very similar techniques to what we used for finance, but we added the email and security question and answer to enable resetting of password. That functionality started by getting user input of the mailing address, then their answer to the security question, which were checked with the database, before using a secure server to send the user's username and a reset passsword to them. Both the track search and course search functions use a search bar which passes the querystring to query the database for the respective thing and on a results html (different each time). They also store the query in a session in case the page is used to store a favourite/a completed course/a secondary/etc so that the same search can be resumed after the course/secondary was added. These are displayed on the my courses and my tracks tabs respectively in tables, with buttons that can remove them from the list. The accounts page can store one's placements and enables you to change your password and logout. 
