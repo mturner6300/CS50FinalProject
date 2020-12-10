@@ -583,7 +583,7 @@ def logout():
 def change_pass():
     conn, db = make_cursor("coursedatabase.db") 
     if request.method == "POST":
-
+# Checks to make sure all areas are filled out correctly
         if not request.form.get("password"):
             message = "Enter password"
             return render_template ("change_pass.html", message = message) 
@@ -600,13 +600,19 @@ def change_pass():
             message = "New Passwords Must Match"
             return render_template ("change_pass.html", message = message) 
 
+# Generates a hash for the new password
+
         hashpassnew = generate_password_hash(request.form.get("new_password"))
+
+# Gets old password hash and compares to old password given
 
         actual_pass = db.execute("SELECT hashedpass FROM users WHERE id = ?", [session["user_id"]]).fetchall()
 
         if not check_password_hash(actual_pass[0][0], request.form.get("password")):
             message = "Incorrect Password"
             return render_template ("change_pass.html", message = message) 
+
+# Changes the password hash to the new password hash and flashes a pop up when you are redirected to index
 
         db.execute("UPDATE users SET hashedpass = ? WHERE id = ?", (hashpassnew, session["user_id"]))
         conn.commit()
@@ -624,52 +630,70 @@ def change_pass():
 """ Sending emails using https://realpython.com/python-send-email/ """
 @app.route("/forgot", methods=(["GET","POST"]))
 def forgot():
+    # Connect to database
     conn, db = make_cursor("coursedatabase.db")
     
+    # Get is trying to view the page
     if request.method == "GET":
         return render_template("forgot.html")
+    # Post is submitting the page
     else:
+        # Try to pull the sumissions of the form
         email = request.form.get("email")
         answer = request.form.get("answer")
     
+        # If an email was submitted 
         if email:
+            # Retrieve the user's security question
             security = db.execute("""SELECT security.question FROM security 
                                     JOIN users ON users.security_id=security.id 
                                     WHERE users.email = ?""", [email]).fetchall()
+            # There is a security question, store it
             if security:
                 security = security[0][0]
+            # If there is not, they have submitted an invalid email
             else: 
                 message = "Enter a valid email"
                 return render_template("forgot.html", message=message)
             
+            # Store their email and return the template with security question
             session["emailforgot"] = email
             return render_template("forgot.html", security=security)
 
-        
+        # Try to etrieve their email from sessions if it wasn't submitted in the form
         email = session["emailforgot"]
         
+        # If it was there
         if email:
+            # Fetch the security question again
             security = db.execute("""SELECT security.question FROM security 
                                     JOIN users ON users.security_id=security.id 
                                     WHERE users.email = ?""", [email]).fetchall()[0][0]
+            # If they have answered it
             if answer:
+                # retrieve the answer hash and check their answer
                 answerhash = db.execute("""SELECT security_hash FROM users
                                             WHERE users.email = ?""", [email]).fetchall()[0][0]
                 if check_password_hash(answerhash, answer):
+                    # If correct, generate a new password
                     letters = string.ascii_letters
                     numbers = string.digits
                     newpass = "".join(random.choice(letters) for i in range(8)).join(random.choice(numbers) for i in range(8))
                     newhash = generate_password_hash(newpass)
+                    # Update their password and commit
                     db.execute("""UPDATE users 
                                 SET hashedpass = ?
                                 WHERE email = ?;""", (newhash, email))
                     conn.commit()
+                    # Retrieve the username
                     username = db.execute("""SELECT username FROM users WHERE email = ?""", [email]).fetchall()[0][0]
-
+                    # Create email context
                     context = ssl.create_default_context()
-
+                    # With the server
                     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+                        # Start and automatically close the server
                         server.login(ouremail, ourpassword)
+                        # Write the message and stitch together the username and password
                         message = """\
                             Subject: Changed Password
 
@@ -682,18 +706,23 @@ def forgot():
                         Your password: """
 
                         message = message + username + addpass + newpass
+                        # Send the email
                         server.sendmail(ouremail, email, message)
+                        # Update the user
                         message = "Please check your email for your reset password"
                         return render_template("forgot.html", message=message)
 
 
                 else:
+                    # If there's an incorrect answer, tell the user
                     message = "Please check your security answer"
                     return render_template("forgot.html", security=security, message=message)
             else:
+                # If there's no answer, tell the user
                 message = "Please enter a security answer"
                 return render_template("forgot.html", security=security, message=message)
 
+        # If there's no email, tell the user
         message = "Please enter account email to reset password"
         return render_template("forgot.html", message=message)
 
