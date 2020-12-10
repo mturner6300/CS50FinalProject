@@ -1,4 +1,5 @@
 # CS50FinalProject - myharvard2: Electric Boogaloo
+*** We have emailed our code as our project is too large for Gradescope ***
 Ethan Arellano, Sam Blackman, Meghan Turner
 Video online at: https://youtu.be/wwsag9WcAMA
 
