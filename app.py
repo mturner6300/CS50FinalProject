@@ -578,7 +578,7 @@ def logout():
 def change_pass():
     conn, db = make_cursor("coursedatabase.db") 
     if request.method == "POST":
-
+# Checks to make sure all areas are filled out correctly
         if not request.form.get("password"):
             message = "Enter password"
             return render_template ("change_pass.html", message = message) 
@@ -595,13 +595,19 @@ def change_pass():
             message = "New Passwords Must Match"
             return render_template ("change_pass.html", message = message) 
 
+# Generates a hash for the new password
+
         hashpassnew = generate_password_hash(request.form.get("new_password"))
+
+# Gets old password hash and compares to old password given
 
         actual_pass = db.execute("SELECT hashedpass FROM users WHERE id = ?", [session["user_id"]]).fetchall()
 
         if not check_password_hash(actual_pass[0][0], request.form.get("password")):
             message = "Incorrect Password"
             return render_template ("change_pass.html", message = message) 
+
+# Changes the password hash to the new password hash and flashes a pop up when you are redirected to index
 
         db.execute("UPDATE users SET hashedpass = ? WHERE id = ?", (hashpassnew, session["user_id"]))
         conn.commit()
