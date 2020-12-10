@@ -533,19 +533,23 @@ def removesecondary():
 @app.route("/account", methods=(["GET","POST"]))
 @login_required
 def account():
+    # Connects to database and gets user id from cookie
     account = "currentpage"
     conn, db = make_cursor("coursedatabase.db")
     user_id = session["user_id"]
+    # If method is GET, display the user's placement test results
     if request.method == "GET":
         expos_placements, maths_placements, lifesci_placements, my_expos_placement, my_maths_placement, my_lifesci_placement = refresh_placements(user_id, db)
         return render_template("account.html", account=account, my_maths_placement=my_maths_placement, 
         my_expos_placement=my_expos_placement, maths_placements=maths_placements, my_lifesci_placement=my_lifesci_placement,
         expos_placements=expos_placements, lifesci_placements=lifesci_placements)
+    # If method is POST, store their placements from the form
     else:
         mathsid = request.form.get("maths_placement")
         exposid = request.form.get("expos_placement")
         lsid = request.form.get("lifesci_placement")
 
+        # Add their placements to the database if they submitted them
         if mathsid and exposid and lsid:
             db.execute("""DELETE FROM placements WHERE user_id = ?""", [user_id])
             db.execute("""INSERT INTO placements
@@ -563,6 +567,7 @@ def account():
         expos_placements=expos_placements, lifesci_placements=lifesci_placements)
 
 """ Logout """
+# Actiavted when logout button is pressed
 @app.route("/logout", methods=(["GET","POST"]))
 @login_required
 def logout():
